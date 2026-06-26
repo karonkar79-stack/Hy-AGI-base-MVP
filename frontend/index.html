@@ -1,0 +1,3141 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Hy-AGI · Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d1117;--bg2:#161b22;--bg3:#21262d;--bg4:#30363d;
+  --border:#30363d;--border-b:rgba(56,139,253,0.3);
+  --ink:#e6edf3;--ink2:#8b949e;--ink3:#6e7681;
+  --blue:#388bfd;--blue-d:#1f6feb;--blue-l:rgba(56,139,253,0.12);--blue-ll:rgba(56,139,253,0.06);
+  --green:#3fb950;--green-l:rgba(63,185,80,0.12);
+  --red:#f85149;--red-l:rgba(248,81,73,0.12);
+  --amber:#d29922;--amber-l:rgba(210,153,34,0.12);
+  --purple:#bc8cff;--purple-l:rgba(188,140,255,0.12);
+  --cyan:#39d353;--teal:#58a6ff;
+  --serif:'DM Serif Display',Georgia,serif;
+  --sans:'DM Sans',system-ui,sans-serif;
+  --mono:'IBM Plex Mono',monospace;
+  --r:6px;--shadow:0 4px 24px rgba(0,0,0,0.4);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;min-height:100%;background:var(--bg);color:var(--ink);font-family:var(--sans);overflow-x:hidden}
+
+/* ══ LOGIN PAGE ══ */
+#login-page{
+  position:fixed;inset:0;z-index:1000;
+  display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(ellipse 80% 60% at 50% 40%,#0d1b2e,#0d1117);
+  overflow:hidden;
+}
+#login-page::before{
+  content:'';position:absolute;inset:0;
+  background-image:linear-gradient(rgba(56,139,253,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(56,139,253,0.03) 1px,transparent 1px);
+  background-size:40px 40px;
+}
+.login-box{
+  width:420px;padding:44px 40px;
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:12px;box-shadow:0 24px 80px rgba(0,0,0,0.6);
+  position:relative;z-index:1;
+}
+.login-logo{text-align:center;margin-bottom:28px}
+.login-logo-text{font-family:var(--serif);font-size:36px;color:var(--ink)}
+.login-logo-text em{font-style:italic;color:var(--blue)}
+.login-logo-sub{font-family:var(--mono);font-size:9px;letter-spacing:0.18em;color:var(--ink3);text-transform:uppercase;margin-top:4px}
+.login-title{font-size:16px;font-weight:600;color:var(--ink);margin-bottom:4px}
+.login-sub{font-size:12px;color:var(--ink3);margin-bottom:24px}
+.login-label{font-family:var(--mono);font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink3);display:block;margin-bottom:6px}
+.login-input{
+  width:100%;padding:10px 14px;background:var(--bg3);
+  border:1px solid var(--border);border-radius:var(--r);
+  color:var(--ink);font-family:var(--sans);font-size:14px;
+  outline:none;transition:border-color 0.2s;margin-bottom:14px;
+}
+.login-input:focus{border-color:var(--blue)}
+.login-btn{
+  width:100%;padding:11px;background:var(--blue-d);color:#fff;
+  font-family:var(--mono);font-size:11px;letter-spacing:0.12em;
+  text-transform:uppercase;border:none;border-radius:var(--r);
+  cursor:pointer;transition:all 0.2s;margin-top:4px;
+}
+.login-btn:hover{background:var(--blue);box-shadow:0 0 20px rgba(56,139,253,0.4)}
+.login-error{font-size:11px;color:var(--red);margin-top:8px;min-height:16px;font-family:var(--mono)}
+.login-footer{text-align:center;margin-top:20px;font-family:var(--mono);font-size:9px;color:var(--ink3);letter-spacing:0.08em}
+
+/* ══ DEPT PAGE ══ */
+#dept-page{
+  position:fixed;inset:0;z-index:900;
+  display:none;align-items:center;justify-content:center;
+  background:radial-gradient(ellipse 80% 60% at 50% 40%,#0d1b2e,#0d1117);
+  overflow:hidden;
+}
+#dept-page::before{
+  content:'';position:absolute;inset:0;
+  background-image:linear-gradient(rgba(56,139,253,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(56,139,253,0.03) 1px,transparent 1px);
+  background-size:40px 40px;
+}
+.dept-inner{position:relative;z-index:1;text-align:center;padding:40px 20px;width:100%;max-width:820px}
+.dept-welcome{font-family:var(--mono);font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--blue);margin-bottom:10px}
+.dept-title{font-family:var(--serif);font-size:28px;color:var(--ink);margin-bottom:6px}
+.dept-sub{font-size:13px;color:var(--ink3);margin-bottom:32px}
+.dept-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:8px}
+.dept-card{
+  padding:22px 16px;background:var(--bg2);
+  border:1px solid var(--border);border-radius:10px;
+  cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden;
+  text-align:left;
+}
+.dept-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.dept-card:hover{transform:translateY(-3px);box-shadow:0 8px 32px rgba(0,0,0,0.4)}
+.dept-card.locked{cursor:not-allowed;opacity:0.55}
+.dept-card.locked:hover{transform:none;box-shadow:none}
+.dept-icon{font-size:28px;margin-bottom:10px}
+.dept-name{font-family:var(--sans);font-size:14px;font-weight:600;color:var(--ink);margin-bottom:3px}
+.dept-role{font-family:var(--mono);font-size:8px;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px}
+.dept-perm{
+  display:inline-block;font-family:var(--mono);font-size:8px;
+  padding:2px 8px;border-radius:3px;letter-spacing:0.06em;
+}
+.perm-admin{background:rgba(248,81,73,0.12);color:var(--red);border:1px solid rgba(248,81,73,0.25)}
+.perm-rw{background:var(--blue-l);color:var(--blue);border:1px solid var(--border-b)}
+.perm-ro{background:var(--bg3);color:var(--ink3);border:1px solid var(--border)}
+.dept-lock{position:absolute;top:10px;right:12px;font-size:12px;opacity:0.4}
+.dept-members{font-size:10px;color:var(--ink3);margin-top:6px}
+
+/* CIS card highlight */
+.dept-card.dept-cis{border-color:rgba(56,139,253,0.3)}
+.dept-card.dept-cis::before{background:var(--blue)}
+.dept-card.dept-cis:hover{border-color:var(--blue);box-shadow:0 8px 32px rgba(56,139,253,0.2)}
+
+/* ══ MAIN APP ══ */
+#app{display:none}
+.header{
+  padding:14px 28px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:14px;
+  background:var(--bg);position:sticky;top:0;z-index:100;
+}
+.logo{font-family:var(--serif);font-size:20px;color:var(--ink);display:flex;align-items:center;gap:8px}
+.logo em{font-style:italic;color:var(--blue)}
+.logo-badge{font-family:var(--mono);font-size:9px;background:var(--blue-l);color:var(--blue);border:1px solid var(--border-b);border-radius:3px;padding:2px 7px;letter-spacing:0.1em;text-transform:uppercase}
+.header-right{margin-left:auto;display:flex;align-items:center;gap:14px}
+.user-chip{display:flex;align-items:center;gap:7px;padding:5px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:20px;font-size:12px}
+.user-dot{width:7px;height:7px;border-radius:50%;background:var(--green)}
+.phase-indicator{display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:9px;color:var(--ink3);letter-spacing:0.08em}
+.phase-dot{width:6px;height:6px;border-radius:50%;background:var(--border)}
+.phase-dot.active{background:var(--blue);box-shadow:0 0 6px var(--blue)}
+.phase-dot.done{background:var(--green)}
+
+.main{padding:24px 28px;max-width:1400px;margin:0 auto}
+.sec-title{font-family:var(--mono);font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--ink3);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.sec-title::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* ══ CARD LIBRARY ══ */
+.card-library{display:flex;flex-wrap:wrap;gap:8px;padding:16px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);min-height:90px}
+.agent-card{
+  display:flex;flex-direction:column;gap:3px;
+  padding:9px 12px;border-radius:var(--r);
+  border:1px solid var(--border);background:var(--bg3);
+  cursor:pointer;user-select:none;transition:all 0.15s;
+  min-width:140px;position:relative;overflow:hidden;
+}
+.agent-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.agent-card:hover:not(.used){border-color:var(--blue);transform:translateY(-2px);box-shadow:0 6px 20px rgba(56,139,253,0.2)}
+.agent-card:active:not(.used){transform:scale(0.97)}
+.agent-card.used{opacity:0.28;pointer-events:none;filter:grayscale(0.8)}
+/* add button now inline */
+.ac-role{font-family:var(--mono);font-size:7.5px;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:1px}
+.ac-name{font-size:11.5px;font-weight:600;color:var(--ink)}
+.ac-desc{font-size:9.5px;color:var(--ink3);line-height:1.35}
+.ac-model{font-family:var(--mono);font-size:7.5px;background:var(--bg4);color:var(--ink3);border-radius:3px;padding:1px 5px;display:inline-block;margin-top:2px;letter-spacing:0.05em}
+.ac-tag{font-family:var(--mono);font-size:7px;padding:1px 5px;border-radius:2px;display:inline-block;margin-top:3px}
+
+/* card color classes */
+.cc-blue::before{background:var(--blue)}.cc-blue .ac-role{color:var(--blue)}
+.cc-red::before{background:var(--red)}.cc-red .ac-role{color:var(--red)}
+.cc-amber::before{background:var(--amber)}.cc-amber .ac-role{color:var(--amber)}
+.cc-purple::before{background:var(--purple)}.cc-purple .ac-role{color:var(--purple)}
+.cc-green::before{background:var(--green)}.cc-green .ac-role{color:var(--green)}
+.cc-cyan::before{background:var(--cyan)}.cc-cyan .ac-role{color:var(--cyan)}
+.cc-teal::before{background:var(--teal)}.cc-teal .ac-role{color:var(--teal)}
+.cc-pink::before{background:#ff79c6}.cc-pink .ac-role{color:#ff79c6}
+
+.tag-pentest{background:rgba(248,81,73,0.1);color:var(--red);border:1px solid rgba(248,81,73,0.2)}
+.tag-compliance{background:var(--green-l);color:var(--green);border:1px solid rgba(63,185,80,0.2)}
+.tag-intel{background:var(--purple-l);color:var(--purple);border:1px solid rgba(188,140,255,0.2)}
+.tag-analysis{background:var(--amber-l);color:var(--amber);border:1px solid rgba(210,153,34,0.2)}
+.tag-mgmt{background:var(--blue-l);color:var(--blue);border:1px solid var(--border-b)}
+
+/* Card category tabs */
+.cat-tabs{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+.cat-tab{font-family:var(--mono);font-size:9px;letter-spacing:0.08em;text-transform:uppercase;padding:5px 12px;border-radius:3px;cursor:pointer;background:var(--bg3);color:var(--ink3);border:1px solid var(--border);transition:all 0.15s}
+.cat-tab:hover,.cat-tab.active{border-color:var(--blue);color:var(--blue);background:var(--blue-ll)}
+
+/* ══ FLOW BUILDER ══ */
+.flow-builder{background:var(--bg2);border:2px dashed var(--border);border-radius:var(--r);min-height:280px;padding:18px;position:relative;transition:border-color 0.2s}
+.flow-builder.empty-hint::before{content:'点击上方卡片添加 Agent，构建执行流程';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:var(--mono);font-size:11px;color:var(--ink3);letter-spacing:0.08em;text-align:center;white-space:nowrap;pointer-events:none}
+.flow-tree{display:flex;flex-direction:column;align-items:center;gap:0;width:100%}
+.flow-node-wrap{display:flex;flex-direction:column;align-items:center;width:100%}
+.flow-node{display:flex;align-items:center;gap:10px;padding:9px 14px;border-radius:var(--r);border:1px solid var(--border);background:var(--bg3);width:300px;position:relative;cursor:default;transition:all 0.3s}
+.fn-color{width:3px;height:32px;border-radius:2px;flex-shrink:0}
+.fn-info{flex:1}
+.fn-role{font-family:var(--mono);font-size:7.5px;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:1px}
+.fn-name{font-size:11.5px;font-weight:600;color:var(--ink)}
+.fn-model{font-family:var(--mono);font-size:7.5px;color:var(--ink3)}
+.fn-status{width:7px;height:7px;border-radius:50%;background:var(--border);flex-shrink:0;transition:all 0.3s}
+.fn-status.running{background:var(--blue);animation:pulse 1s ease-in-out infinite}
+.fn-status.done{background:var(--green)}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.3;transform:scale(0.6)}}
+.node-remove{position:absolute;top:-7px;right:-7px;width:16px;height:16px;border-radius:50%;background:var(--red);color:#fff;display:flex;align-items:center;justify-content:center;font-size:9px;cursor:pointer;opacity:0;transition:opacity 0.2s;z-index:10;font-weight:700;line-height:1}
+.flow-node:hover .node-remove{opacity:1}
+.parallel-wrap{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.parallel-label{font-family:var(--mono);font-size:8px;color:var(--ink3);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:5px;text-align:center}
+.parallel-wrap .flow-node{width:185px}
+.flow-conn{width:1px;height:20px;background:var(--border);position:relative;display:flex;justify-content:center}
+.flow-conn::after{content:'';position:absolute;bottom:-4px;width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-top:5px solid var(--border)}
+.flow-conn.active{background:var(--blue)}.flow-conn.active::after{border-top-color:var(--blue)}
+
+.controls{display:flex;gap:10px;margin-top:18px;align-items:center;flex-wrap:wrap}
+.btn{padding:8px 18px;border-radius:var(--r);font-family:var(--mono);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;border:none;cursor:pointer;transition:all 0.2s}
+.btn-primary{background:var(--blue-d);color:#fff}
+.btn-primary:hover{background:var(--blue);box-shadow:0 0 16px rgba(56,139,253,0.4)}
+.btn-primary:disabled{background:var(--bg4);color:var(--ink3);cursor:not-allowed;box-shadow:none}
+.btn-ghost{background:transparent;color:var(--ink3);border:1px solid var(--border)}
+.btn-ghost:hover{border-color:var(--ink3);color:var(--ink)}
+.quick-hint{font-family:var(--mono);font-size:9px;color:var(--ink3);letter-spacing:0.06em}
+.presets{display:flex;gap:7px;margin-bottom:7px;flex-wrap:wrap}
+.preset-btn{font-family:var(--mono);font-size:8.5px;letter-spacing:0.07em;text-transform:uppercase;padding:4px 11px;border-radius:3px;cursor:pointer;background:var(--bg3);color:var(--ink3);border:1px solid var(--border);transition:all 0.15s}
+.preset-btn:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-ll)}
+
+/* ══ MODAL ══ */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:500;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.2s;backdrop-filter:blur(4px)}
+.modal-overlay.show{opacity:1;pointer-events:all}
+.modal{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:26px;width:600px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow);transform:translateY(16px);transition:transform 0.2s}
+.modal-overlay.show .modal{transform:translateY(0)}
+.modal-title{font-family:var(--serif);font-size:20px;color:var(--ink);margin-bottom:3px}
+.modal-sub{font-size:12px;color:var(--ink3);margin-bottom:20px}
+.form-group{margin-bottom:14px}
+.form-label{font-family:var(--mono);font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink3);margin-bottom:5px;display:block}
+.form-input{width:100%;padding:8px 11px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);color:var(--ink);font-family:var(--sans);font-size:13px;transition:border-color 0.2s;outline:none}
+.form-input:focus{border-color:var(--blue)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.doc-upload{width:100%;padding:14px;background:var(--bg3);border:1px dashed var(--border);border-radius:var(--r);text-align:center;cursor:pointer;transition:all 0.2s}
+.doc-upload:hover{border-color:var(--blue);background:var(--blue-ll)}
+.doc-upload.loaded{border-color:var(--green);background:var(--green-l);border-style:solid}
+.doc-upload-icon{font-size:20px;margin-bottom:4px}
+.doc-upload-txt{font-size:11px;color:var(--ink3);line-height:1.4}
+.doc-upload.loaded .doc-upload-txt{color:var(--green)}
+.modal-footer{display:flex;gap:9px;margin-top:22px;justify-content:flex-end}
+.upload-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+/* ══ RUN VIEW ══ */
+.run-view{display:none}
+.run-view.show{display:grid;grid-template-columns:300px 1fr;gap:18px}
+.run-tree{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:14px;overflow-y:auto;max-height:600px}
+.run-tree-title{font-family:var(--mono);font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:var(--blue);margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.run-tree-title::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--blue);animation:pulse 1s infinite}
+.run-right{display:flex;flex-direction:column;gap:12px}
+
+/* Timer */
+.timer-box{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:10px 16px;display:flex;align-items:center;justify-content:space-between}
+.timer-left{display:flex;align-items:center;gap:10px}
+.timer-label{font-family:var(--mono);font-size:9px;color:var(--ink3);letter-spacing:0.1em;text-transform:uppercase}
+.timer-val{font-family:var(--mono);font-size:20px;color:var(--blue);font-weight:500;letter-spacing:0.05em}
+.timer-eta{font-family:var(--mono);font-size:10px;color:var(--ink3)}
+.timer-elapsed{font-family:var(--mono);font-size:11px;color:var(--ink2)}
+
+/* Terminal */
+.terminal{background:#070a0f;border:1px solid var(--border);border-radius:var(--r);overflow:hidden;display:flex;flex-direction:column}
+.term-bar{padding:7px 11px;background:var(--bg3);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px}
+.tdot{width:9px;height:9px;border-radius:50%}
+.tdot-r{background:#ff5f57}.tdot-y{background:#febc2e}.tdot-g{background:#28c840}
+.term-title{font-family:var(--mono);font-size:9.5px;color:var(--ink3);letter-spacing:0.1em;margin-left:5px}
+.term-body{padding:12px 14px;overflow-y:auto;font-family:var(--mono);font-size:10.5px;line-height:1.85;max-height:340px}
+.term-body::-webkit-scrollbar{width:3px}
+.term-body::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:2px}
+.tg{color:#3fb950}.tb{color:#58a6ff}.tw{color:#d29922}
+.te{color:#f85149}.ts{color:#3fb950}.td{color:#6e7681}
+.tp{color:#388bfd}.tcur{display:inline-block;width:6px;height:11px;background:var(--blue);animation:blink 1s step-end infinite;vertical-align:middle}
+.tpurp{color:#bc8cff}.tcyan{color:#39d353}.twhite{color:#e6edf3}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+/* Progress */
+.progress-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:10px 14px}
+.prog-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px}
+.prog-label{font-family:var(--mono);font-size:9.5px;color:var(--ink3);letter-spacing:0.08em;text-transform:uppercase}
+.prog-pct{font-family:var(--mono);font-size:12px;color:var(--blue);font-weight:500}
+.prog-track{width:100%;height:5px;background:var(--bg4);border-radius:3px;overflow:hidden}
+.prog-fill{height:100%;border-radius:3px;background:linear-gradient(to right,var(--blue-d),var(--blue));transition:width 1s cubic-bezier(0.16,1,0.3,1);width:0%}
+
+/* Live stats */
+.live-stats{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.ls-box{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:8px;text-align:center}
+.ls-n{font-family:var(--mono);font-size:15px;color:var(--blue);font-weight:500;line-height:1.2}
+.ls-l{font-family:var(--mono);font-size:7.5px;color:var(--ink3);text-transform:uppercase;letter-spacing:0.06em}
+
+/* ══ REPORT ══ */
+.report-view{display:none}
+.report-view.show{display:block}
+.report-header{background:linear-gradient(135deg,#0d1b2a 0%,#1a2a4a 50%,#0d1b2a 100%);border:1px solid var(--border-b);border-radius:var(--r);padding:26px 28px;margin-bottom:18px;position:relative;overflow:hidden}
+.report-header::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 30% 50%,rgba(56,139,253,0.08),transparent);pointer-events:none}
+.report-badge{font-family:var(--mono);font-size:9px;letter-spacing:0.16em;text-transform:uppercase;color:var(--blue);margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.report-badge::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--green)}
+.report-title{font-family:var(--serif);font-size:28px;color:var(--ink);line-height:1.1;margin-bottom:5px}
+.report-title em{font-style:italic;color:var(--blue)}
+.report-meta{font-family:var(--mono);font-size:9.5px;color:var(--ink3);display:flex;gap:18px;flex-wrap:wrap}
+.report-kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:9px;margin-bottom:16px}
+.kpi-box{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:11px 13px;position:relative;overflow:hidden}
+.kpi-box::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.kpi-blue::before{background:var(--blue)}.kpi-green::before{background:var(--green)}
+.kpi-red::before{background:var(--red)}.kpi-amber::before{background:var(--amber)}.kpi-purple::before{background:var(--purple)}
+.kpi-n{font-family:var(--serif);font-size:24px;color:var(--ink);line-height:1;margin-bottom:3px}
+.kpi-l{font-family:var(--mono);font-size:8px;color:var(--ink3);text-transform:uppercase;letter-spacing:0.08em}
+.report-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.report-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px}
+.rc-title{font-family:var(--mono);font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:var(--blue);margin-bottom:10px;border-bottom:1px solid var(--border);padding-bottom:7px}
+.vuln-item{display:flex;align-items:flex-start;gap:9px;padding:7px 0;border-bottom:1px solid var(--border)}
+.vuln-item:last-child{border-bottom:none}
+.vsev{font-family:var(--mono);font-size:8px;padding:2px 6px;border-radius:3px;text-transform:uppercase;letter-spacing:0.06em;flex-shrink:0;margin-top:1px}
+.vs-c{background:var(--red-l);color:var(--red);border:1px solid rgba(248,81,73,0.3)}
+.vs-h{background:var(--amber-l);color:var(--amber);border:1px solid rgba(210,153,34,0.3)}
+.vs-m{background:var(--blue-l);color:var(--blue);border:1px solid var(--border-b)}
+.vuln-name{font-size:11px;font-weight:600;color:var(--ink);margin-bottom:2px}
+.vuln-desc{font-size:9.5px;color:var(--ink3);line-height:1.4}
+.vuln-cvss{font-family:var(--mono);font-size:9px;color:var(--ink3);margin-left:auto;flex-shrink:0;padding-top:1px}
+.compliance-row{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);font-size:10.5px}
+.compliance-row:last-child{border-bottom:none}
+.comp-name{flex:1;color:var(--ink2)}
+.comp-status{font-family:var(--mono);font-size:8px;padding:1px 7px;border-radius:3px}
+.cs-pass{background:var(--green-l);color:var(--green)}.cs-fail{background:var(--red-l);color:var(--red)}.cs-warn{background:var(--amber-l);color:var(--amber)}
+.report-footer{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-top:1px solid var(--border);font-family:var(--mono);font-size:9.5px;color:var(--ink3)}
+.report-actions{display:flex;gap:9px}
+
+/* ══ TOAST ══ */
+.toast{position:fixed;bottom:22px;right:22px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:9px 15px;font-family:var(--mono);font-size:10.5px;color:var(--ink2);z-index:9999;transform:translateY(20px);opacity:0;transition:all 0.3s;pointer-events:none}
+.toast.show{transform:translateY(0);opacity:1}
+
+/* ══ MISC ══ */
+#build-view.hide{display:none}
+#build-view{display:block}
+
+/* ══ REPORT PAGE ══ */
+#report-page{
+  position:fixed;inset:0;z-index:800;
+  display:none;flex-direction:column;
+  background:var(--bg);overflow-y:auto;
+}
+#report-page.show{display:flex}
+.report-page-header{
+  padding:14px 28px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:14px;
+  background:var(--bg);position:sticky;top:0;z-index:10;
+}
+.report-page-back{
+  display:flex;align-items:center;gap:7px;
+  font-family:var(--mono);font-size:10px;letter-spacing:0.1em;
+  text-transform:uppercase;color:var(--ink3);cursor:pointer;
+  padding:6px 12px;border:1px solid var(--border);border-radius:var(--r);
+  transition:all 0.15s;background:var(--bg3);
+}
+.report-page-back:hover{border-color:var(--blue);color:var(--blue)}
+.report-page-title{font-family:var(--serif);font-size:18px;color:var(--ink)}
+.report-page-title em{font-style:italic;color:var(--blue)}
+.report-page-body{padding:28px 40px;max-width:1200px;margin:0 auto;width:100%}
+
+/* ══ REPORT PASSWORD GATE ══ */
+#report-gate{
+  position:fixed;inset:0;z-index:900;
+  display:none;align-items:center;justify-content:center;
+  background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);
+}
+#report-gate.show{display:flex}
+.gate-box{
+  width:380px;padding:36px 32px;
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:12px;box-shadow:0 24px 80px rgba(0,0,0,0.7);
+  text-align:center;
+}
+.gate-icon{font-size:36px;margin-bottom:14px}
+.gate-title{font-family:var(--serif);font-size:22px;color:var(--ink);margin-bottom:4px}
+.gate-sub{font-size:12px;color:var(--ink3);margin-bottom:20px;line-height:1.6}
+.gate-label{font-family:var(--mono);font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink3);display:block;margin-bottom:6px;text-align:left}
+.gate-input{width:100%;padding:10px 13px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);color:var(--ink);font-family:var(--sans);font-size:14px;outline:none;transition:border-color 0.2s;margin-bottom:6px;letter-spacing:0.1em;text-align:center}
+.gate-input:focus{border-color:var(--blue)}
+.gate-btn{width:100%;padding:11px;background:var(--blue-d);color:#fff;font-family:var(--mono);font-size:11px;letter-spacing:0.12em;text-transform:uppercase;border:none;border-radius:var(--r);cursor:pointer;transition:all 0.2s;margin-top:8px}
+.gate-btn:hover{background:var(--blue);box-shadow:0 0 20px rgba(56,139,253,0.4)}
+.gate-error{font-size:11px;color:var(--red);margin-top:8px;min-height:16px;font-family:var(--mono)}
+.gate-hint{font-family:var(--mono);font-size:9px;color:var(--ink3);margin-top:14px;letter-spacing:0.06em}
+
+
+/* ══ EXPORT MODAL ══ */
+#export-modal{
+  position:fixed;inset:0;z-index:1100;
+  display:none;align-items:center;justify-content:center;
+  background:rgba(0,0,0,0.82);backdrop-filter:blur(8px);
+}
+#export-modal.show{display:flex}
+.export-box{
+  width:520px;padding:32px 30px;
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:12px;box-shadow:0 24px 80px rgba(0,0,0,0.7);
+}
+.export-title{font-family:var(--serif);font-size:22px;color:var(--ink);margin-bottom:4px}
+.export-sub{font-size:12px;color:var(--ink3);margin-bottom:22px}
+.export-formats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
+.export-fmt{
+  padding:14px 16px;border-radius:var(--r);
+  border:2px solid var(--border);background:var(--bg3);
+  cursor:pointer;transition:all 0.15s;position:relative;
+}
+.export-fmt:hover{border-color:var(--blue);background:var(--blue-ll)}
+.export-fmt.selected{border-color:var(--blue);background:var(--blue-ll)}
+.export-fmt.selected::after{
+  content:'✓';position:absolute;top:8px;right:10px;
+  font-family:var(--mono);font-size:11px;color:var(--blue);font-weight:600;
+}
+.ef-icon{font-size:22px;margin-bottom:6px}
+.ef-name{font-size:13px;font-weight:600;color:var(--ink);margin-bottom:2px}
+.ef-desc{font-size:10px;color:var(--ink3);line-height:1.4}
+.ef-tag{
+  display:inline-block;font-family:var(--mono);font-size:7.5px;
+  padding:1px 6px;border-radius:2px;margin-top:4px;letter-spacing:0.06em;
+}
+.ef-tag-green{background:var(--green-l);color:var(--green);border:1px solid rgba(63,185,80,0.2)}
+.ef-tag-blue{background:var(--blue-l);color:var(--blue);border:1px solid var(--border-b)}
+.ef-tag-purple{background:var(--purple-l);color:var(--purple);border:1px solid rgba(188,140,255,0.2)}
+.ef-tag-amber{background:var(--amber-l);color:var(--amber);border:1px solid rgba(210,153,34,0.2)}
+
+.export-options{margin-bottom:20px}
+.export-opt-row{
+  display:flex;align-items:center;gap:12px;
+  padding:10px 0;border-bottom:1px solid var(--border);
+}
+.export-opt-row:last-child{border-bottom:none}
+.export-opt-label{font-size:12px;color:var(--ink2);flex:1}
+.export-opt-sub{font-family:var(--mono);font-size:9px;color:var(--ink3)}
+.toggle-wrap{display:flex;align-items:center;gap:8px}
+.toggle{
+  width:36px;height:20px;border-radius:10px;background:var(--bg4);
+  position:relative;cursor:pointer;transition:background 0.2s;flex-shrink:0;
+  border:1px solid var(--border);
+}
+.toggle.on{background:var(--blue-d);border-color:var(--blue)}
+.toggle::after{
+  content:'';position:absolute;top:2px;left:2px;
+  width:14px;height:14px;border-radius:50%;background:#fff;
+  transition:left 0.2s;
+}
+.toggle.on::after{left:18px}
+.enc-pass-wrap{
+  margin-top:10px;padding:10px 12px;
+  background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);
+  display:none;
+}
+.enc-pass-wrap.show{display:block}
+.enc-pass-label{font-family:var(--mono);font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink3);margin-bottom:6px;display:block}
+.enc-pass-input{
+  width:100%;padding:8px 11px;background:var(--bg);border:1px solid var(--border);
+  border-radius:var(--r);color:var(--ink);font-family:var(--mono);font-size:13px;
+  outline:none;transition:border-color 0.2s;letter-spacing:0.08em;
+}
+.enc-pass-input:focus{border-color:var(--blue)}
+.enc-strength{display:flex;gap:4px;margin-top:6px;align-items:center}
+.enc-bar{height:3px;flex:1;border-radius:2px;background:var(--bg4);transition:background 0.3s}
+.enc-str-label{font-family:var(--mono);font-size:8px;color:var(--ink3);min-width:30px;text-align:right}
+
+.export-footer{display:flex;gap:10px;justify-content:flex-end;margin-top:4px}
+
+/* Progress overlay */
+.export-progress{
+  text-align:center;padding:20px 0;display:none;
+}
+.export-progress.show{display:block}
+.ep-spinner{
+  width:40px;height:40px;border:3px solid var(--bg4);
+  border-top-color:var(--blue);border-radius:50%;
+  animation:spin 0.8s linear infinite;margin:0 auto 14px;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ep-label{font-family:var(--mono);font-size:11px;color:var(--ink3);letter-spacing:0.08em;margin-bottom:6px}
+.ep-bar-wrap{height:4px;background:var(--bg4);border-radius:2px;overflow:hidden;margin-top:10px}
+.ep-bar{height:100%;background:linear-gradient(to right,var(--blue-d),var(--blue));width:0%;transition:width 0.4s;border-radius:2px}
+
+
+/* ══ AGENT CONFIG MODAL ══ */
+#agent-config-modal{
+  position:fixed;inset:0;z-index:950;
+  display:none;align-items:center;justify-content:center;
+  background:rgba(0,0,0,0.82);backdrop-filter:blur(8px);
+}
+#agent-config-modal.show{display:flex}
+.acm-box{
+  width:660px;max-height:88vh;overflow-y:auto;
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:12px;box-shadow:0 24px 80px rgba(0,0,0,0.7);
+}
+.acm-box::-webkit-scrollbar{width:4px}
+.acm-box::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:2px}
+.acm-header{
+  padding:20px 24px 16px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:12px;
+  position:sticky;top:0;background:var(--bg2);z-index:5;
+}
+.acm-color-bar{width:4px;height:40px;border-radius:2px;flex-shrink:0}
+.acm-agent-name{font-family:var(--serif);font-size:20px;color:var(--ink)}
+.acm-agent-role{font-family:var(--mono);font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink3);margin-top:2px}
+.acm-close{margin-left:auto;width:28px;height:28px;border-radius:50%;background:var(--bg3);border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--ink3);transition:all 0.15s}
+.acm-close:hover{border-color:var(--red);color:var(--red)}
+.acm-body{padding:20px 24px}
+.acm-section{margin-bottom:22px}
+.acm-section-title{font-family:var(--mono);font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:var(--blue);margin-bottom:12px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border);padding-bottom:7px}
+
+/* Slider rows */
+.acm-slider-row{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.acm-slider-label{font-size:11px;color:var(--ink2);width:120px;flex-shrink:0}
+.acm-slider-label span{display:block;font-family:var(--mono);font-size:8px;color:var(--ink3)}
+.acm-slider{flex:1;-webkit-appearance:none;height:4px;border-radius:2px;background:var(--bg4);outline:none;cursor:pointer}
+.acm-slider::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--blue);cursor:pointer;transition:transform 0.15s}
+.acm-slider::-webkit-slider-thumb:hover{transform:scale(1.3)}
+.acm-slider-val{font-family:var(--mono);font-size:11px;color:var(--blue);min-width:44px;text-align:right}
+
+/* Model selector */
+.acm-model-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.acm-model-btn{
+  padding:8px 10px;border-radius:var(--r);border:1px solid var(--border);
+  background:var(--bg3);cursor:pointer;text-align:center;transition:all 0.15s;
+}
+.acm-model-btn:hover{border-color:var(--blue);background:var(--blue-ll)}
+.acm-model-btn.selected{border-color:var(--blue);background:var(--blue-ll)}
+.acm-model-name{font-family:var(--mono);font-size:9px;color:var(--ink);letter-spacing:0.05em}
+.acm-model-tier{font-size:9px;color:var(--ink3);margin-top:2px}
+.acm-model-cost{font-family:var(--mono);font-size:8px;margin-top:3px}
+
+/* Memory mode */
+.acm-mem-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.acm-mem-btn{padding:9px 10px;border-radius:var(--r);border:1px solid var(--border);background:var(--bg3);cursor:pointer;text-align:center;transition:all 0.15s}
+.acm-mem-btn:hover,.acm-mem-btn.selected{border-color:var(--purple);background:var(--purple-l)}
+.acm-mem-name{font-size:11px;font-weight:600;color:var(--ink);margin-bottom:2px}
+.acm-mem-desc{font-size:9px;color:var(--ink3)}
+
+/* Skills */
+.acm-skills-grid{display:flex;flex-wrap:wrap;gap:7px}
+.acm-skill{
+  display:flex;align-items:center;gap:5px;
+  padding:5px 10px;border-radius:20px;
+  border:1px solid var(--border);background:var(--bg3);
+  cursor:pointer;transition:all 0.15s;font-size:10px;color:var(--ink3);
+}
+.acm-skill:hover{border-color:var(--blue);color:var(--blue)}
+.acm-skill.on{border-color:var(--green);background:var(--green-l);color:var(--green)}
+.acm-skill.on::before{content:'✓ '}
+.acm-skill-count{font-family:var(--mono);font-size:9px;color:var(--ink3)}
+
+/* Priority */
+.acm-prio-row{display:flex;gap:8px}
+.acm-prio-btn{flex:1;padding:8px;border-radius:var(--r);border:1px solid var(--border);background:var(--bg3);cursor:pointer;text-align:center;font-family:var(--mono);font-size:10px;color:var(--ink3);transition:all 0.15s;letter-spacing:0.06em}
+.acm-prio-btn.selected-high{border-color:var(--red);background:var(--red-l);color:var(--red)}
+.acm-prio-btn.selected-medium{border-color:var(--amber);background:var(--amber-l);color:var(--amber)}
+.acm-prio-btn.selected-low{border-color:var(--blue);background:var(--blue-l);color:var(--blue)}
+
+/* Cost estimate badge */
+.acm-cost-badge{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 14px;background:var(--bg3);border:1px solid var(--border);
+  border-radius:var(--r);margin-top:4px;
+}
+.acm-cost-label{font-size:11px;color:var(--ink3)}
+.acm-cost-val{font-family:var(--mono);font-size:14px;color:var(--blue);font-weight:500}
+.acm-footer{
+  padding:14px 24px;border-top:1px solid var(--border);
+  display:flex;gap:10px;justify-content:space-between;align-items:center;
+  position:sticky;bottom:0;background:var(--bg2);
+}
+.acm-reset-btn{font-family:var(--mono);font-size:9px;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink3);cursor:pointer;padding:6px 12px;border:1px solid var(--border);border-radius:var(--r);background:transparent;transition:all 0.15s}
+.acm-reset-btn:hover{border-color:var(--amber);color:var(--amber)}
+
+/* Card config indicator */
+.card-cfg-dot{
+  position:absolute;bottom:6px;left:8px;
+  width:6px;height:6px;border-radius:50%;
+  background:var(--amber);display:none;
+}
+.card-configured .card-cfg-dot{display:block}
+
+
+/* ══ ROLE REPORT TREE ══ */
+.rr-wrap{padding:0 0 32px}
+.rr-title{font-family:var(--serif);font-size:22px;color:var(--ink);margin-bottom:4px}
+.rr-sub{font-size:12px;color:var(--ink3);margin-bottom:28px}
+
+/* Tree layout */
+.rr-tree{display:flex;flex-direction:column;align-items:center;gap:0;margin-bottom:36px}
+.rr-level{display:flex;justify-content:center;gap:18px;position:relative;width:100%}
+
+/* vertical connector from above */
+.rr-vline-top{width:2px;height:24px;background:var(--border);margin:0 auto}
+/* horizontal bar connecting siblings */
+.rr-hbar{position:absolute;top:0;height:2px;background:var(--border);z-index:0}
+
+/* node card */
+.rr-node{
+  display:flex;flex-direction:column;align-items:center;
+  position:relative;z-index:1;
+}
+.rr-card{
+  width:200px;padding:14px 16px;
+  background:var(--bg2);border:2px solid var(--border);
+  border-radius:10px;cursor:pointer;transition:all 0.2s;
+  text-align:center;position:relative;overflow:hidden;
+}
+.rr-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.rr-card:hover{transform:translateY(-3px);box-shadow:0 8px 28px rgba(0,0,0,0.4)}
+.rr-card.unlocked{border-color:rgba(56,139,253,0.4)}
+.rr-card.unlocked:hover{border-color:var(--blue);box-shadow:0 8px 28px rgba(56,139,253,0.25)}
+.rr-card.complete{border-color:rgba(63,185,80,0.4)}
+.rr-card.complete:hover{border-color:var(--green);box-shadow:0 8px 28px rgba(63,185,80,0.2)}
+
+.rr-icon{font-size:26px;margin-bottom:7px}
+.rr-role{font-family:var(--mono);font-size:8px;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:3px}
+.rr-name{font-size:13px;font-weight:600;color:var(--ink);margin-bottom:4px}
+.rr-status{font-family:var(--mono);font-size:8px;padding:2px 8px;border-radius:10px;display:inline-block;letter-spacing:0.06em}
+.rrs-done{background:var(--green-l);color:var(--green);border:1px solid rgba(63,185,80,0.3)}
+.rrs-ready{background:var(--blue-l);color:var(--blue);border:1px solid var(--border-b)}
+.rr-findings{font-family:var(--mono);font-size:10px;color:var(--ink3);margin-top:5px}
+
+.rr-vline{width:2px;height:20px;background:var(--border);margin:0 auto}
+.rr-vline.active{background:var(--green)}
+
+/* download badge */
+.rr-dl{
+  margin-top:7px;font-family:var(--mono);font-size:8px;
+  color:var(--blue);letter-spacing:0.08em;
+  display:flex;align-items:center;justify-content:center;gap:4px;
+  opacity:0;transition:opacity 0.2s;
+}
+.rr-card.unlocked:hover .rr-dl,
+.rr-card.complete:hover .rr-dl{opacity:1}
+
+/* Role report detail panel */
+.rr-detail-overlay{
+  position:fixed;inset:0;z-index:1050;
+  background:rgba(0,0,0,0.82);backdrop-filter:blur(8px);
+  display:none;align-items:center;justify-content:center;
+}
+.rr-detail-overlay.show{display:flex}
+.rr-detail-box{
+  width:720px;max-height:88vh;overflow-y:auto;
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:12px;box-shadow:0 24px 80px rgba(0,0,0,0.7);
+}
+.rr-detail-box::-webkit-scrollbar{width:4px}
+.rr-detail-box::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:2px}
+.rrd-header{
+  padding:20px 24px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:12px;
+  position:sticky;top:0;background:var(--bg2);z-index:5;
+}
+.rrd-color{width:4px;height:44px;border-radius:2px;flex-shrink:0}
+.rrd-close{margin-left:auto;width:28px;height:28px;border-radius:50%;background:var(--bg3);border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--ink3);transition:all 0.15s}
+.rrd-close:hover{border-color:var(--red);color:var(--red)}
+.rrd-body{padding:22px 24px}
+.rrd-section{margin-bottom:20px}
+.rrd-sec-title{font-family:var(--mono);font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:var(--blue);margin-bottom:10px;border-bottom:1px solid var(--border);padding-bottom:6px}
+.rrd-item{padding:9px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);margin-bottom:7px;font-size:11px;color:var(--ink2);line-height:1.65}
+.rrd-item strong{color:var(--ink)}
+.rrd-item.crit{border-left:3px solid var(--red)}
+.rrd-item.high{border-left:3px solid var(--amber)}
+.rrd-item.med{border-left:3px solid var(--blue)}
+.rrd-item.pass{border-left:3px solid var(--green)}
+.rrd-footer{padding:14px 24px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end;position:sticky;bottom:0;background:var(--bg2)}
+
+
+/* ══ AUDIO CONTROLS ══ */
+#audio-bar{
+  position:fixed;bottom:20px;left:20px;z-index:9000;
+  display:flex;align-items:center;gap:8px;
+  padding:8px 14px;
+  background:rgba(22,27,34,0.92);
+  border:1px solid var(--border);
+  border-radius:30px;
+  backdrop-filter:blur(12px);
+  box-shadow:0 4px 20px rgba(0,0,0,0.4);
+  transition:opacity 0.3s;
+}
+#audio-bar:hover{opacity:1 !important}
+.ab-btn{
+  width:28px;height:28px;border-radius:50%;
+  background:var(--bg3);border:1px solid var(--border);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  font-size:13px;transition:all 0.15s;flex-shrink:0;
+}
+.ab-btn:hover{border-color:var(--blue);background:var(--blue-ll)}
+.ab-vol-wrap{display:flex;align-items:center;gap:5px}
+.ab-vol{
+  -webkit-appearance:none;width:60px;height:3px;
+  border-radius:2px;background:var(--bg4);outline:none;cursor:pointer;
+}
+.ab-vol::-webkit-slider-thumb{
+  -webkit-appearance:none;width:11px;height:11px;
+  border-radius:50%;background:var(--blue);cursor:pointer;
+}
+.ab-track-name{
+  font-family:var(--mono);font-size:8.5px;color:var(--ink3);
+  letter-spacing:0.06em;max-width:110px;
+  overflow:hidden;white-space:nowrap;text-overflow:ellipsis;
+}
+.ab-vis{display:flex;align-items:flex-end;gap:2px;height:14px}
+.ab-bar-vis{
+  width:3px;border-radius:2px;background:var(--blue);
+  transition:height 0.15s;
+}
+
+</style>
+</head>
+<body>
+
+<!-- ══════════════ LOGIN PAGE ══════════════ -->
+<div id="login-page">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="login-logo-text">Hy-<em>AGI</em></div>
+      <div class="login-logo-sub">Security Operations Platform</div>
+    </div>
+    <div class="login-title">登录工作台</div>
+    <div class="login-sub">BIT-CIS Team · Enterprise Access</div>
+    <label class="login-label">用户名 Username</label>
+    <input class="login-input" id="login-user" value="security" placeholder="username">
+    <label class="login-label">密码 Password</label>
+    <input class="login-input" id="login-pass" type="password" placeholder="••••••••">
+    <button class="login-btn" onclick="doLogin()">▶ 登录 Sign In</button>
+    <div class="login-error" id="login-error"></div>
+    <div class="login-footer">BIT-CIS · Powered by Hy-AGI Platform · 2026</div>
+  </div>
+</div>
+
+<!-- ══════════════ DEPT SELECT PAGE ══════════════ -->
+<div id="dept-page">
+  <div class="dept-inner">
+    <div class="dept-welcome">Welcome back, security</div>
+    <div class="dept-title">选择您的部门</div>
+    <div class="dept-sub">请选择对应部门进入工作台。不同部门拥有不同权限级别。</div>
+    <div class="dept-grid">
+
+      <div class="dept-card dept-cis" onclick="enterApp('CIS')">
+        <div class="dept-icon">🛡️</div>
+        <div class="dept-name">CIS</div>
+        <div class="dept-role" style="color:var(--blue)">Cyber & Info Security</div>
+        <span class="dept-perm perm-admin">ADMIN</span>
+        <div class="dept-members">完整平台访问权限<br>所有功能可用</div>
+      </div>
+
+      <div class="dept-card locked" onclick="showLocked('Dev')">
+        <div class="dept-lock">🔒</div>
+        <div class="dept-icon">💻</div>
+        <div class="dept-name">Dev</div>
+        <div class="dept-role" style="color:var(--amber)">Development Team</div>
+        <span class="dept-perm perm-rw">READ / WRITE</span>
+        <div class="dept-members">可提交测试需求<br>查看自身项目报告</div>
+      </div>
+
+      <div class="dept-card locked" onclick="showLocked('QA')">
+        <div class="dept-lock">🔒</div>
+        <div class="dept-icon">🔍</div>
+        <div class="dept-name">QA</div>
+        <div class="dept-role" style="color:var(--green)">Quality Assurance</div>
+        <span class="dept-perm perm-rw">READ / WRITE</span>
+        <div class="dept-members">查看测试报告<br>提交质量需求</div>
+      </div>
+
+      <div class="dept-card locked" onclick="showLocked('CPS')">
+        <div class="dept-lock">🔒</div>
+        <div class="dept-icon">📋</div>
+        <div class="dept-name">CPS</div>
+        <div class="dept-role" style="color:var(--purple)">Compliance & Policy</div>
+        <span class="dept-perm perm-ro">VIEW ONLY</span>
+        <div class="dept-members" style="color:var(--amber)">⚠ 仅限查看报告<br>无法操作平台</div>
+      </div>
+
+      <div class="dept-card locked" onclick="showLocked('SOC')">
+        <div class="dept-lock">🔒</div>
+        <div class="dept-icon">📡</div>
+        <div class="dept-name">SOC</div>
+        <div class="dept-role" style="color:var(--red)">Security Operations</div>
+        <span class="dept-perm perm-rw">READ / WRITE</span>
+        <div class="dept-members">监控告警处理<br>事件响应协作</div>
+      </div>
+
+      <div class="dept-card locked" onclick="showLocked('GRC')">
+        <div class="dept-lock">🔒</div>
+        <div class="dept-icon">⚖️</div>
+        <div class="dept-name">GRC</div>
+        <div class="dept-role" style="color:var(--cyan)">Governance Risk & Compliance</div>
+        <span class="dept-perm perm-ro">VIEW ONLY</span>
+        <div class="dept-members">合规报告查阅<br>风险评估数据</div>
+      </div>
+
+      <div class="dept-card locked" onclick="showLocked('MGMT')">
+        <div class="dept-lock">🔒</div>
+        <div class="dept-icon">📊</div>
+        <div class="dept-name">Management</div>
+        <div class="dept-role" style="color:var(--ink3)">Executive Dashboard</div>
+        <span class="dept-perm perm-ro">VIEW ONLY</span>
+        <div class="dept-members">高层汇报仪表盘<br>KPI 指标总览</div>
+      </div>
+
+      <div class="dept-card locked" onclick="showLocked('IT')">
+        <div class="dept-lock">🔒</div>
+        <div class="dept-icon">🖧</div>
+        <div class="dept-name">IT Ops</div>
+        <div class="dept-role" style="color:var(--teal)">Infrastructure & Operations</div>
+        <span class="dept-perm perm-rw">READ / WRITE</span>
+        <div class="dept-members">基础设施扫描<br>漏洞修复跟踪</div>
+      </div>
+
+    </div>
+    <div style="font-family:var(--mono);font-size:9px;color:var(--ink3);margin-top:16px">
+      当前账号：security · 会话将于 30 分钟后过期 · BIT-CIS Enterprise SSO
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ MAIN APP ══════════════ -->
+<div id="app">
+<div class="header">
+  <div class="logo">Hy-<em>AGI</em></div>
+  <div class="logo-badge">CIS Admin</div>
+  <div class="header-right">
+    <div class="phase-indicator">
+      <div class="phase-dot active" id="ph1"></div>
+      <div style="width:16px;height:1px;background:var(--border)"></div>
+      <div class="phase-dot" id="ph2"></div>
+      <div style="width:16px;height:1px;background:var(--border)"></div>
+      <div class="phase-dot" id="ph3"></div>
+      <div style="width:16px;height:1px;background:var(--border)"></div>
+      <div class="phase-dot" id="ph4"></div>
+      <span style="margin-left:7px;font-size:9.5px" id="phase-label">构建流程</span>
+    </div>
+    <div class="user-chip"><div class="user-dot"></div><span>security · CIS</span></div>
+  </div>
+</div>
+
+<div class="main">
+
+<!-- BUILD VIEW -->
+<div id="build-view">
+
+  <!-- Category tabs -->
+  <div class="sec-title">Agent 卡片库</div>
+  <div class="cat-tabs">
+    <div class="cat-tab active" onclick="filterCat('all',this)">全部</div>
+    <div class="cat-tab" onclick="filterCat('mgmt',this)">管理层</div>
+    <div class="cat-tab" onclick="filterCat('pentest',this)">渗透测试</div>
+    <div class="cat-tab" onclick="filterCat('compliance',this)">合规审计</div>
+    <div class="cat-tab" onclick="filterCat('intel',this)">威胁情报</div>
+    <div class="cat-tab" onclick="filterCat('analysis',this)">分析研判</div>
+  </div>
+  <div class="card-library" id="card-library"></div>
+
+  <!-- Presets -->
+  <div style="margin-top:14px;margin-bottom:6px">
+    <div class="sec-title">快速预设</div>
+    <div class="presets">
+      <div class="preset-btn" onclick="loadPreset('full')">✦ 完整渗透+合规</div>
+      <div class="preset-btn" onclick="loadPreset('apt')">✦ APT 威胁视角</div>
+      <div class="preset-btn" onclick="loadPreset('pci')">✦ PCI-DSS 专项</div>
+      <div class="preset-btn" onclick="loadPreset('compliance')">✦ 合规审计专项</div>
+      <div class="preset-btn" onclick="loadPreset('quick')">✦ 快速扫描</div>
+    </div>
+  </div>
+
+  <div class="sec-title">执行流程构建区</div>
+  <div style="font-size:11px;color:var(--ink3);margin-bottom:8px;display:flex;align-items:center;gap:6px">
+    <span>💡</span><span>点击「+ 添加」加入流程 · 点击「⚙」配置 Agent · 同类卡片自动并行</span>
+  </div>
+  <div class="flow-builder empty-hint" id="flow-builder">
+    <div class="flow-tree" id="flow-tree"></div>
+  </div>
+
+  <div class="controls">
+    <button class="btn btn-primary" id="run-btn" disabled onclick="openConfig()">▶ 配置并运行</button>
+    <button class="btn btn-ghost" onclick="clearFlow()">↺ 清空流程</button>
+    <span class="quick-hint" id="node-count">尚未添加任何 Agent</span>
+  </div>
+</div>
+
+<!-- RUN VIEW -->
+<div class="run-view" id="run-view">
+  <div class="run-tree" id="run-tree">
+    <div class="run-tree-title">实时执行流程</div>
+    <div id="run-tree-nodes"></div>
+  </div>
+  <div class="run-right">
+    <div class="timer-box">
+      <div class="timer-left">
+        <div>
+          <div class="timer-label">预计剩余时间</div>
+          <div class="timer-val" id="timer-countdown">--:--:--</div>
+        </div>
+        <div style="width:1px;height:36px;background:var(--border)"></div>
+        <div>
+          <div class="timer-label">已执行</div>
+          <div class="timer-elapsed" id="timer-elapsed">00:00:00</div>
+        </div>
+      </div>
+      <div class="timer-eta" id="timer-stage">初始化中...</div>
+    </div>
+    <div class="live-stats">
+      <div class="ls-box"><div class="ls-n" id="ls-findings">0</div><div class="ls-l">发现</div></div>
+      <div class="ls-box"><div class="ls-n" id="ls-critical" style="color:var(--red)">0</div><div class="ls-l">严重</div></div>
+      <div class="ls-box"><div class="ls-n" id="ls-agents">0</div><div class="ls-l">运行中</div></div>
+      <div class="ls-box"><div class="ls-n" id="ls-tokens">0</div><div class="ls-l">K Tokens</div></div>
+      <div class="ls-box"><div class="ls-n" id="ls-cost">$0.00</div><div class="ls-l">成本</div></div>
+    </div>
+    <div class="terminal">
+      <div class="term-bar">
+        <div class="tdot tdot-r"></div><div class="tdot tdot-y"></div><div class="tdot tdot-g"></div>
+        <div class="term-title">HY-AGI · AGENT EXECUTION LOG</div>
+      </div>
+      <div class="term-body" id="term-out"></div>
+    </div>
+    <div class="progress-wrap">
+      <div class="prog-header">
+        <div class="prog-label" id="prog-label">初始化中...</div>
+        <div class="prog-pct" id="prog-pct">0%</div>
+      </div>
+      <div class="prog-track"><div class="prog-fill" id="prog-fill"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- Report now opens as full page with password gate -->
+
+</div><!-- /main -->
+</div><!-- /app -->
+
+<!-- CONFIG MODAL -->
+<div class="modal-overlay" id="config-modal">
+  <div class="modal">
+    <div class="modal-title">配置任务参数</div>
+    <div class="modal-sub">填写目标信息与需求文档，Hy-AGI 将自动开始执行</div>
+    <div class="form-group">
+      <label class="form-label">目标域名 / IP 范围</label>
+      <input class="form-input" id="cfg-target" value="example-corp.com" placeholder="example.com 或 192.168.1.0/24">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">时间预算（天）</label>
+        <input class="form-input" id="cfg-days" type="number" value="5" min="1" max="30">
+      </div>
+      <div class="form-group">
+        <label class="form-label">成本预算（USD）</label>
+        <input class="form-input" id="cfg-budget" type="number" value="100">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">测试范围</label>
+      <input class="form-input" id="cfg-scope" value="Web App · API · Network · Cloud">
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+      <div class="form-group" style="margin-bottom:0">
+        <label class="form-label">合规文档 (PDF/DOCX)</label>
+        <div class="doc-upload" id="doc1" onclick="fakeUpload('doc1','doc1-txt','ISO27001_Policy_2026.pdf')">
+          <div class="doc-upload-icon">📄</div>
+          <div class="doc-upload-txt" id="doc1-txt">上传合规文档<br><span style="font-size:10px;opacity:0.6">ISO27001 / PCI-DSS / NIST</span></div>
+        </div>
+      </div>
+      <div class="form-group" style="margin-bottom:0">
+        <label class="form-label">渗透测试需求 (PDF/DOCX)</label>
+        <div class="doc-upload" id="doc2" onclick="fakeUpload('doc2','doc2-txt','PenTest_Requirements_v2.pdf')">
+          <div class="doc-upload-icon">🎯</div>
+          <div class="doc-upload-txt" id="doc2-txt">上传渗透测试需求<br><span style="font-size:10px;opacity:0.6">测试范围、目标、限制</span></div>
+        </div>
+      </div>
+      <div class="form-group" style="margin-bottom:0">
+        <label class="form-label">产品应用场景 (PDF/DOCX)</label>
+        <div class="doc-upload" id="doc3" onclick="fakeUpload('doc3','doc3-txt','Product_Context_2026.pdf')">
+          <div class="doc-upload-icon">🏗️</div>
+          <div class="doc-upload-txt" id="doc3-txt">上传产品应用场景<br><span style="font-size:10px;opacity:0.6">系统架构、业务流程</span></div>
+        </div>
+      </div>
+      <div class="form-group" style="margin-bottom:0">
+        <label class="form-label">其他需求文档</label>
+        <div class="doc-upload" id="doc4" onclick="fakeUpload('doc4','doc4-txt','Additional_Requirements.pdf')">
+          <div class="doc-upload-icon">📎</div>
+          <div class="doc-upload-txt" id="doc4-txt">上传其他需求<br><span style="font-size:10px;opacity:0.6">特殊要求、历史报告等</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal()">取消</button>
+      <button class="btn btn-primary" onclick="startRun()">▶ 开始执行</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════
+// ALL AGENT CARD DEFINITIONS
+// ══════════════════════════════════════
+var ALL_CARDS = [
+  // Management
+  {id:'orch',  name:'Orchestrator',    role:'管理层',    desc:'任务分解·调度·汇聚', model:'claude-opus-4-6',   color:'#388bfd', type:'single',   cat:'mgmt',       tag:'tag-mgmt',       tagLabel:'管理'},
+  // Pentest
+  {id:'sr',    name:'Sr. Pentester',   role:'高级渗透',  desc:'深度漏洞利用·PoC生成', model:'claude-sonnet-4-6', color:'#f85149', type:'parallel', cat:'pentest',    tag:'tag-pentest',    tagLabel:'渗透'},
+  {id:'jr',    name:'Jr. Pentester',   role:'初级渗透',  desc:'广度扫描·OSINT·枚举',  model:'claude-haiku-4-5',  color:'#d29922', type:'parallel', cat:'pentest',    tag:'tag-pentest',    tagLabel:'渗透'},
+  {id:'web',   name:'Web App Tester',  role:'Web渗透',   desc:'XSS·SQLi·CSRF·API安全', model:'claude-sonnet-4-6', color:'#f85149', type:'parallel', cat:'pentest',    tag:'tag-pentest',    tagLabel:'渗透'},
+  {id:'net',   name:'Network Attacker',role:'网络渗透',  desc:'端口扫描·协议攻击·内网横移', model:'claude-sonnet-4-6',color:'#ff6b6b',type:'parallel',cat:'pentest',   tag:'tag-pentest',    tagLabel:'渗透'},
+  {id:'cloud', name:'Cloud Red Team',  role:'云安全攻击', desc:'S3·IAM·K8s·容器逃逸',  model:'claude-sonnet-4-6', color:'#ff9f43', type:'parallel', cat:'pentest',    tag:'tag-pentest',    tagLabel:'渗透'},
+  {id:'mobile',name:'Mobile Pentester',role:'移动端渗透', desc:'iOS·Android·API逆向',   model:'claude-haiku-4-5',  color:'#ee5a24', type:'parallel', cat:'pentest',    tag:'tag-pentest',    tagLabel:'渗透'},
+  // APT
+  {id:'apt',   name:'APT Simulator',   role:'APT视角',   desc:'高级持续威胁·多阶段攻击链', model:'claude-opus-4-6',color:'#bc8cff', type:'parallel', cat:'intel',      tag:'tag-intel',      tagLabel:'情报'},
+  {id:'recon', name:'OSINT Recon',     role:'情报收集',  desc:'开源情报·社工·暗网监控',    model:'claude-sonnet-4-6',color:'#a29bfe',type:'parallel',cat:'intel',      tag:'tag-intel',      tagLabel:'情报'},
+  {id:'threat',name:'Threat Intel',    role:'威胁情报',  desc:'CVE追踪·IOC·TTP分析',      model:'claude-sonnet-4-6',color:'#6c5ce7',type:'parallel',cat:'intel',      tag:'tag-intel',      tagLabel:'情报'},
+  // Compliance
+  {id:'grc',   name:'GRC Agent',       role:'合规审计',  desc:'OWASP·ISO27001·合规核查',  model:'claude-sonnet-4-6',color:'#3fb950', type:'parallel', cat:'compliance', tag:'tag-compliance', tagLabel:'合规'},
+  {id:'pci',   name:'PCI-DSS Auditor', role:'PCI-DSS',   desc:'支付卡数据安全标准审计',     model:'claude-sonnet-4-6',color:'#00b894', type:'parallel', cat:'compliance', tag:'tag-compliance', tagLabel:'合规'},
+  {id:'iso',   name:'ISO 27001',       role:'ISO审计',   desc:'信息安全管理体系审计',       model:'claude-sonnet-4-6',color:'#00cec9', type:'parallel', cat:'compliance', tag:'tag-compliance', tagLabel:'合规'},
+  {id:'nist',  name:'NIST CSF',        role:'NIST框架',  desc:'网络安全框架评估',           model:'claude-haiku-4-5', color:'#55efc4', type:'parallel', cat:'compliance', tag:'tag-compliance', tagLabel:'合规'},
+  {id:'gdpr',  name:'GDPR Checker',    role:'数据合规',  desc:'数据保护影响评估·隐私审查',  model:'claude-haiku-4-5', color:'#fdcb6e', type:'parallel', cat:'compliance', tag:'tag-compliance', tagLabel:'合规'},
+  // Analysis
+  {id:'arch',  name:'Sec. Architect',  role:'安全架构',  desc:'威胁建模·架构分析·设计审查', model:'claude-opus-4-6',  color:'#58a6ff', type:'parallel', cat:'analysis',   tag:'tag-analysis',   tagLabel:'分析'},
+  {id:'mal',   name:'Malware Analyst', role:'恶意代码',  desc:'样本分析·行为检测·IOC提取',  model:'claude-sonnet-4-6',color:'#fd79a8', type:'parallel', cat:'analysis',   tag:'tag-analysis',   tagLabel:'分析'},
+  {id:'dfir',  name:'DFIR Agent',      role:'数字取证',  desc:'事件响应·取证分析·溯源',     model:'claude-sonnet-4-6',color:'#e17055', type:'parallel', cat:'analysis',   tag:'tag-analysis',   tagLabel:'分析'},
+  // Post-process
+  {id:'rev',   name:'Reviewer',        role:'结果审核',  desc:'交叉验证·误报过滤·质量控制', model:'claude-sonnet-4-6',color:'#39d353', type:'single',   cat:'mgmt',       tag:'tag-mgmt',       tagLabel:'管理'},
+  {id:'rep',   name:'Reporter',        role:'报告生成',  desc:'CVSS分级·结构化报告·修复建议',model:'claude-sonnet-4-6',color:'#388bfd',type:'single',   cat:'mgmt',       tag:'tag-mgmt',       tagLabel:'管理'},
+];
+
+
+// ══════════════════════════════════════
+// AGENT CONFIGURATIONS (editable)
+// ══════════════════════════════════════
+var configModified = {};
+
+var AGENT_CONFIGS = {
+  orch:    { maxCost:5.00,  maxCalls:100, timeout:30, priority:'high',   skills:['task_decomposition','agent_dispatch','result_aggregation','loop_detection','context_management'], enabledSkills:['task_decomposition','agent_dispatch','result_aggregation','loop_detection'], temperature:0.2, memoryMode:'graph', retryLimit:3 },
+  sr:      { maxCost:2.00,  maxCalls:100, timeout:60, priority:'high',   skills:['sqli_detection','xss_exploitation','jwt_bypass','ssrf','rce_exploitation','privilege_escalation','poc_generation'], enabledSkills:['sqli_detection','xss_exploitation','jwt_bypass','poc_generation'], temperature:0.4, memoryMode:'vector', retryLimit:3 },
+  jr:      { maxCost:0.80,  maxCalls:100, timeout:60, priority:'medium', skills:['port_scanning','dir_enumeration','osint','subdomain_enum','banner_grabbing','screenshot'], enabledSkills:['port_scanning','dir_enumeration','osint','subdomain_enum'], temperature:0.3, memoryMode:'none', retryLimit:2 },
+  web:     { maxCost:1.50,  maxCalls:100, timeout:60, priority:'high',   skills:['xss_stored','xss_reflected','csrf','idor','open_redirect','file_upload','api_fuzzing'], enabledSkills:['xss_stored','xss_reflected','csrf','idor'], temperature:0.4, memoryMode:'vector', retryLimit:3 },
+  net:     { maxCost:1.20,  maxCalls:80,  timeout:60, priority:'medium', skills:['port_scan','ssl_audit','dns_enum','smb_enum','snmp_enum','network_pivot'], enabledSkills:['port_scan','ssl_audit','dns_enum'], temperature:0.3, memoryMode:'none', retryLimit:2 },
+  cloud:   { maxCost:1.80,  maxCalls:80,  timeout:90, priority:'high',   skills:['s3_audit','iam_analysis','lambda_scan','k8s_escape','container_escape','metadata_ssrf'], enabledSkills:['s3_audit','iam_analysis','lambda_scan'], temperature:0.3, memoryMode:'vector', retryLimit:2 },
+  mobile:  { maxCost:1.00,  maxCalls:60,  timeout:90, priority:'low',    skills:['apk_decompile','ios_analysis','api_intercept','cert_pinning_bypass','storage_analysis'], enabledSkills:['apk_decompile','api_intercept'], temperature:0.4, memoryMode:'none', retryLimit:2 },
+  apt:     { maxCost:3.00,  maxCalls:100, timeout:120,priority:'high',   skills:['attack_chain','lateral_movement','credential_harvest','persistence','c2_simulation','data_exfil'], enabledSkills:['attack_chain','lateral_movement','credential_harvest'], temperature:0.6, memoryMode:'graph', retryLimit:3 },
+  recon:   { maxCost:0.60,  maxCalls:80,  timeout:60, priority:'medium', skills:['github_dorking','linkedin_osint','darkweb_monitor','email_harvest','breach_check'], enabledSkills:['github_dorking','linkedin_osint','email_harvest'], temperature:0.2, memoryMode:'vector', retryLimit:2 },
+  threat:  { maxCost:0.80,  maxCalls:60,  timeout:60, priority:'medium', skills:['cve_tracking','ioc_analysis','ttp_mapping','mitre_attack','threat_scoring'], enabledSkills:['cve_tracking','ioc_analysis','mitre_attack'], temperature:0.2, memoryMode:'graph', retryLimit:2 },
+  grc:     { maxCost:1.00,  maxCalls:60,  timeout:60, priority:'medium', skills:['owasp_check','iso27001','nist_csf','pci_dss','gdpr_check','risk_scoring'], enabledSkills:['owasp_check','iso27001','risk_scoring'], temperature:0.1, memoryMode:'vector', retryLimit:2 },
+  pci:     { maxCost:1.20,  maxCalls:60,  timeout:60, priority:'high',   skills:['pan_data_scan','network_seg','patch_audit','access_control','log_review','pen_test_req'], enabledSkills:['pan_data_scan','network_seg','patch_audit'], temperature:0.1, memoryMode:'vector', retryLimit:2 },
+  iso:     { maxCost:0.80,  maxCalls:50,  timeout:60, priority:'medium', skills:['annex_a_audit','isms_review','risk_assessment','doc_review','control_testing'], enabledSkills:['annex_a_audit','risk_assessment'], temperature:0.1, memoryMode:'vector', retryLimit:2 },
+  nist:    { maxCost:0.60,  maxCalls:50,  timeout:60, priority:'low',    skills:['identify','protect','detect','respond','recover'], enabledSkills:['identify','protect','detect'], temperature:0.1, memoryMode:'none', retryLimit:2 },
+  gdpr:    { maxCost:0.60,  maxCalls:40,  timeout:60, priority:'low',    skills:['dpia','data_mapping','consent_check','retention_audit','breach_notify'], enabledSkills:['dpia','data_mapping'], temperature:0.1, memoryMode:'none', retryLimit:2 },
+  arch:    { maxCost:2.00,  maxCalls:60,  timeout:90, priority:'high',   skills:['stride_model','attack_surface','trust_boundary','data_flow','design_review','zero_trust'], enabledSkills:['stride_model','attack_surface','data_flow'], temperature:0.3, memoryMode:'graph', retryLimit:3 },
+  mal:     { maxCost:1.50,  maxCalls:60,  timeout:90, priority:'medium', skills:['static_analysis','dynamic_analysis','ioc_extract','yara_rules','sandbox_run'], enabledSkills:['static_analysis','ioc_extract'], temperature:0.3, memoryMode:'vector', retryLimit:2 },
+  dfir:    { maxCost:1.20,  maxCalls:60,  timeout:90, priority:'medium', skills:['log_forensics','memory_analysis','timeline','artifact_collect','root_cause'], enabledSkills:['log_forensics','timeline'], temperature:0.2, memoryMode:'vector', retryLimit:2 },
+  rev:     { maxCost:1.00,  maxCalls:50,  timeout:30, priority:'high',   skills:['false_pos_filter','cross_validation','cvss_scoring','dedup','quality_gate'], enabledSkills:['false_pos_filter','cross_validation','cvss_scoring','dedup'], temperature:0.1, memoryMode:'vector', retryLimit:3 },
+  rep:     { maxCost:0.80,  maxCalls:30,  timeout:30, priority:'high',   skills:['cvss_report','exec_summary','remediation_guide','mitre_mapping','pdf_gen','evidence_attach'], enabledSkills:['cvss_report','exec_summary','remediation_guide'], temperature:0.2, memoryMode:'none', retryLimit:2 },
+};
+
+var SKILL_LABELS = {
+  task_decomposition:'任务分解', agent_dispatch:'Agent 调度', result_aggregation:'结果汇聚', loop_detection:'循环检测', context_management:'上下文管理',
+  sqli_detection:'SQL 注入检测', xss_exploitation:'XSS 利用', jwt_bypass:'JWT 绕过', ssrf:'SSRF 探测', rce_exploitation:'RCE 利用', privilege_escalation:'权限提升', poc_generation:'PoC 生成',
+  port_scanning:'端口扫描', dir_enumeration:'目录枚举', osint:'OSINT 收集', subdomain_enum:'子域名枚举', banner_grabbing:'Banner 获取', screenshot:'页面截图',
+  xss_stored:'存储型 XSS', xss_reflected:'反射型 XSS', csrf:'CSRF 检测', idor:'IDOR 检测', open_redirect:'开放重定向', file_upload:'文件上传漏洞', api_fuzzing:'API Fuzz',
+  port_scan:'端口扫描', ssl_audit:'SSL/TLS 审计', dns_enum:'DNS 枚举', smb_enum:'SMB 枚举', snmp_enum:'SNMP 枚举', network_pivot:'内网横移',
+  s3_audit:'S3 存储桶审计', iam_analysis:'IAM 分析', lambda_scan:'Lambda 扫描', k8s_escape:'K8s 逃逸', container_escape:'容器逃逸', metadata_ssrf:'元数据 SSRF',
+  apk_decompile:'APK 反编译', ios_analysis:'iOS 分析', api_intercept:'API 拦截', cert_pinning_bypass:'证书绑定绕过', storage_analysis:'存储分析',
+  attack_chain:'攻击链模拟', lateral_movement:'横向移动', credential_harvest:'凭据收集', persistence:'持久化', c2_simulation:'C2 模拟', data_exfil:'数据外渗',
+  github_dorking:'GitHub 挖掘', linkedin_osint:'LinkedIn OSINT', darkweb_monitor:'暗网监控', email_harvest:'邮件收集', breach_check:'泄露检查',
+  cve_tracking:'CVE 追踪', ioc_analysis:'IOC 分析', ttp_mapping:'TTP 映射', mitre_attack:'MITRE ATT&CK', threat_scoring:'威胁评分',
+  owasp_check:'OWASP 核查', iso27001:'ISO 27001', nist_csf:'NIST CSF', pci_dss:'PCI-DSS', gdpr_check:'GDPR 检查', risk_scoring:'风险评分',
+  pan_data_scan:'PAN 数据扫描', network_seg:'网络分段审计', patch_audit:'补丁审计', access_control:'访问控制', log_review:'日志审查', pen_test_req:'渗透要求核查',
+  annex_a_audit:'附件 A 审计', isms_review:'ISMS 审查', risk_assessment:'风险评估', doc_review:'文档审查', control_testing:'控制测试',
+  identify:'识别', protect:'保护', detect:'检测', respond:'响应', recover:'恢复',
+  dpia:'DPIA 评估', data_mapping:'数据映射', consent_check:'同意机制检查', retention_audit:'保留期审计', breach_notify:'泄露通知',
+  stride_model:'STRIDE 建模', attack_surface:'攻击面分析', trust_boundary:'信任边界', data_flow:'数据流分析', design_review:'设计审查', zero_trust:'零信任评估',
+  static_analysis:'静态分析', dynamic_analysis:'动态分析', ioc_extract:'IOC 提取', yara_rules:'YARA 规则', sandbox_run:'沙箱运行',
+  log_forensics:'日志取证', memory_analysis:'内存分析', timeline:'时间线重建', artifact_collect:'证物收集', root_cause:'根因分析',
+  false_pos_filter:'误报过滤', cross_validation:'交叉验证', cvss_scoring:'CVSS 评分', dedup:'去重', quality_gate:'质量门控',
+  cvss_report:'CVSS 报告', exec_summary:'执行摘要', remediation_guide:'修复指南', mitre_mapping:'MITRE 映射', pdf_gen:'PDF 生成', evidence_attach:'证据附件',
+};
+
+var PRESETS = {
+  full:       ['orch','sr','jr','web','arch','grc','iso','rev','rep'],
+  apt:        ['orch','apt','recon','threat','sr','arch','dfir','rev','rep'],
+  pci:        ['orch','web','net','pci','grc','arch','rev','rep'],
+  compliance: ['orch','grc','pci','iso','nist','gdpr','arch','rev','rep'],
+  quick:      ['orch','sr','jr','rep'],
+};
+
+var flowNodes = [];
+var runTimers = [];
+var timerInterval = null;
+var currentCat = 'all';
+
+// ══════════════════════════════════════
+// LOGIN
+// ══════════════════════════════════════
+function doLogin() {
+  var user = document.getElementById('login-user').value.trim();
+  var pass = document.getElementById('login-pass').value;
+  var err  = document.getElementById('login-error');
+  if (!pass) { err.textContent = '请输入密码'; return; }
+  if (user.toLowerCase() !== 'security') { err.textContent = 'User not found'; return; }
+  // Accept any password
+  err.textContent = '';
+  var btn = document.querySelector('.login-btn');
+  btn.textContent = '验证中...';
+  setTimeout(function() {
+    document.getElementById('login-page').style.display = 'none';
+    var dp = document.getElementById('dept-page');
+    dp.style.display = 'flex';
+  }, 800);
+}
+document.getElementById('login-pass').addEventListener('keydown', function(e){ if(e.key==='Enter') doLogin(); });
+document.getElementById('login-user').addEventListener('keydown', function(e){ if(e.key==='Enter') doLogin(); });
+
+function showLocked(dept) {
+  showToast('⛔ ' + dept + ' 账号未授权，请联系 CIS 管理员');
+}
+
+function enterApp(dept) {
+  document.getElementById('dept-page').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  initCards();
+}
+
+// ══════════════════════════════════════
+// CARD LIBRARY
+// ══════════════════════════════════════
+function initCards() {
+  renderCards('all');
+}
+
+function renderCards(cat) {
+  var lib = document.getElementById('card-library');
+  var cards = cat === 'all' ? ALL_CARDS : ALL_CARDS.filter(function(c){ return c.cat === cat; });
+  lib.innerHTML = cards.map(function(c) {
+    var cfg = AGENT_CONFIGS[c.id] || {};
+    var usedClass = flowNodes.find(function(n){ return n.id===c.id; }) ? ' used' : '';
+    var customDot = configModified[c.id] ? '<div style="position:absolute;top:7px;right:7px;width:7px;height:7px;border-radius:50%;background:var(--amber)" title="已自定义配置"></div>' : '';
+    var skillCount = cfg.enabledSkills ? cfg.enabledSkills.length : 0;
+    return '<div class="agent-card cc-' + colorClass(c.color) + usedClass + '" id="lib-' + c.id + '" data-id="' + c.id + '">'
+      + customDot
+      + '<div class="ac-role">' + c.role + '</div>'
+      + '<div class="ac-name">' + c.name + '</div>'
+      + '<div class="ac-desc">' + c.desc + '</div>'
+      + '<div style="display:flex;gap:4px;align-items:center;margin-top:3px;flex-wrap:wrap">'
+      + '<div class="ac-model">' + (cfg.model || c.model) + '</div>'
+      + '<span class="ac-tag ' + c.tag + '">' + c.tagLabel + '</span>'
+      + '<span style="font-family:var(--mono);font-size:7px;color:var(--ink3)">' + skillCount + ' 技能</span>'
+      + '</div>'
+      + '<div style="display:flex;gap:5px;margin-top:8px">'
+      + '<button class="card-add-btn" data-id="' + c.id + '" style="flex:1;padding:5px 0;background:var(--blue-d);border:none;border-radius:4px;font-family:var(--mono);font-size:9px;color:#fff;letter-spacing:0.06em;cursor:pointer">+ 添加</button>'
+      + '<button class="card-cfg-btn" data-id="' + c.id + '" style="padding:5px 10px;background:var(--bg2);border:1px solid var(--border);border-radius:4px;font-size:14px;cursor:pointer;color:var(--ink3);line-height:1">⚙</button>'
+      + '</div>'
+      + '</div>';
+  }).join('');
+
+  // Bind buttons via event delegation (avoids all quote issues)
+  lib.querySelectorAll('.card-add-btn').forEach(function(btn) {
+    btn.addEventListener('click', function(e) { e.stopPropagation(); cardClick(btn.dataset.id); });
+    btn.addEventListener('mouseover', function() { btn.style.background = 'var(--blue)'; });
+    btn.addEventListener('mouseout',  function() { btn.style.background = 'var(--blue-d)'; });
+  });
+  lib.querySelectorAll('.card-cfg-btn').forEach(function(btn) {
+    btn.addEventListener('click', function(e) { e.stopPropagation(); openAgentConfig(e, btn.dataset.id); });
+    btn.addEventListener('mouseover', function() { btn.style.borderColor='var(--amber)'; btn.style.color='var(--amber)'; });
+    btn.addEventListener('mouseout',  function() { btn.style.borderColor='var(--border)'; btn.style.color='var(--ink3)'; });
+  });
+}
+
+function colorClass(hex) {
+  var map = {'#388bfd':'blue','#f85149':'red','#d29922':'amber','#bc8cff':'purple','#3fb950':'green','#39d353':'cyan','#58a6ff':'teal','#fd79a8':'pink','#a29bfe':'purple','#6c5ce7':'purple','#00b894':'green','#00cec9':'cyan','#55efc4':'cyan','#fdcb6e':'amber','#ff6b6b':'red','#ff9f43':'amber','#ee5a24':'red','#e17055':'amber','#6c5ce7':'purple'};
+  return map[hex] || 'blue';
+}
+
+function filterCat(cat, el) {
+  currentCat = cat;
+  document.querySelectorAll('.cat-tab').forEach(function(t){ t.classList.remove('active'); });
+  el.classList.add('active');
+  renderCards(cat);
+}
+
+// ══════════════════════════════════════
+// CARD CLICK
+// ══════════════════════════════════════
+function cardClick(id) {
+  if (flowNodes.find(function(n){ return n.id===id; })) { showToast('已在流程中 · 点击 × 移除'); return; }
+  var def = ALL_CARDS.find(function(c){ return c.id===id; });
+  if (!def) return;
+  flowNodes.push({id:def.id,name:def.name,role:def.role,desc:def.desc,model:def.model,color:def.color,type:def.type,cat:def.cat});
+  var el = document.getElementById('lib-'+id);
+  if (el) el.classList.add('used');
+  renderFlow();
+  updateControls();
+  showToast('✓ ' + def.name + ' 已添加');
+}
+
+function loadPreset(key) {
+  clearFlow();
+  var ids = PRESETS[key] || [];
+  ids.forEach(function(id){ cardClick(id); });
+  showToast('预设已加载 — ' + flowNodes.length + ' 个 Agent');
+}
+
+function removeNode(id) {
+  flowNodes = flowNodes.filter(function(n){ return n.id!==id; });
+  var el = document.getElementById('lib-'+id);
+  if (el) el.classList.remove('used');
+  renderFlow();
+  updateControls();
+}
+
+function clearFlow() {
+  flowNodes = [];
+  document.querySelectorAll('#card-library .agent-card').forEach(function(c){ c.classList.remove('used'); });
+  renderFlow();
+  updateControls();
+}
+
+// ══════════════════════════════════════
+// FLOW RENDER
+// ══════════════════════════════════════
+function getGroups() {
+  var groups=[], pGroup=[];
+  flowNodes.forEach(function(n) {
+    if (n.type==='parallel') { pGroup.push(n); }
+    else {
+      if (pGroup.length) { groups.push({type:'parallel',nodes:pGroup.slice()}); pGroup=[]; }
+      groups.push({type:'single',nodes:[n]});
+    }
+  });
+  if (pGroup.length) groups.push({type:'parallel',nodes:pGroup.slice()});
+  return groups;
+}
+
+function renderFlow() {
+  var tree = document.getElementById('flow-tree');
+  var builder = document.getElementById('flow-builder');
+  if (!flowNodes.length) { tree.innerHTML=''; builder.classList.add('empty-hint'); return; }
+  builder.classList.remove('empty-hint');
+  var groups = getGroups(), html='';
+  groups.forEach(function(g,gi) {
+    if (gi>0) html += '<div class="flow-conn"></div>';
+    if (g.type==='single') {
+      var n=g.nodes[0];
+      html += '<div class="flow-node-wrap" style="display:flex;flex-direction:column;align-items:center">'
+        +'<div class="flow-node">'
+        +'<div class="fn-color" style="background:'+n.color+'"></div>'
+        +'<div class="fn-info"><div class="fn-role" style="color:'+n.color+'">'+n.role+'</div>'
+        +'<div class="fn-name">'+n.name+'</div><div class="fn-model">'+n.model+'</div></div>'
+        +'<div class="fn-status"></div>'
+        +'<div class="node-remove" data-remove="'+n.id+'">×</div>'
+        +'</div></div>';
+    } else {
+      var inner = g.nodes.map(function(n) {
+        return '<div class="flow-node" style="width:185px">'
+          +'<div class="fn-color" style="background:'+n.color+'"></div>'
+          +'<div class="fn-info"><div class="fn-role" style="color:'+n.color+';font-size:7px">'+n.role+'</div>'
+          +'<div class="fn-name" style="font-size:10.5px">'+n.name+'</div></div>'
+          +'<div class="fn-status"></div>'
+          +'<div class="node-remove" data-remove="'+n.id+'">×</div>'
+          +'</div>';
+      }).join('');
+      html += '<div class="flow-node-wrap" style="display:flex;flex-direction:column;align-items:center">'
+        +'<div class="parallel-label">并行执行</div>'
+        +'<div class="parallel-wrap">'+inner+'</div></div>';
+    }
+  });
+  tree.innerHTML = html;
+  tree.querySelectorAll('[data-remove]').forEach(function(btn) {
+    btn.addEventListener('click', function(e){ e.stopPropagation(); removeNode(btn.dataset.remove); });
+  });
+}
+
+function updateControls() {
+  var btn = document.getElementById('run-btn');
+  var hint = document.getElementById('node-count');
+  if (!flowNodes.length) { btn.disabled=true; hint.textContent='尚未添加任何 Agent'; return; }
+  btn.disabled = false;
+  hint.textContent = flowNodes.length+' 个 Agent · '+flowNodes.filter(function(n){return n.type==='parallel';}).length+' 个并行';
+}
+
+// ══════════════════════════════════════
+// MODAL
+// ══════════════════════════════════════
+function openConfig() { document.getElementById('config-modal').classList.add('show'); }
+function closeModal()  { document.getElementById('config-modal').classList.remove('show'); }
+function fakeUpload(divId, txtId, filename) {
+  document.getElementById(divId).classList.add('loaded');
+  document.getElementById(txtId).textContent = '✓ '+filename+' 已载入';
+  showToast('文档已加载: '+filename);
+}
+
+// ══════════════════════════════════════
+// RUN
+// ══════════════════════════════════════
+function startRun() {
+  closeModal();
+  var target = document.getElementById('cfg-target').value || 'example-corp.com';
+  var budget = document.getElementById('cfg-budget').value || 100;
+  document.getElementById('build-view').classList.add('hide');
+  document.getElementById('run-view').classList.add('show');
+  setPhase(3);
+  buildRunTree();
+  startTimers();
+  runTerminal(target, budget);
+}
+
+var elapsedSec = 0;
+var countdownSec = 0;
+
+function startTimers() {
+  var totalNodes = flowNodes.length;
+  countdownSec = 60 + totalNodes * 18; // simulate realistic time
+  elapsedSec = 0;
+  timerInterval = setInterval(function() {
+    elapsedSec++;
+    if (countdownSec > 0) countdownSec--;
+    document.getElementById('timer-elapsed').textContent = fmtTime(elapsedSec);
+    document.getElementById('timer-countdown').textContent = countdownSec > 0 ? fmtTime(countdownSec) : '00:00:00';
+  }, 1000);
+}
+
+function fmtTime(s) {
+  var h = Math.floor(s/3600), m = Math.floor((s%3600)/60), ss = s%60;
+  return pad(h)+':'+pad(m)+':'+pad(ss);
+}
+function pad(n){ return n<10?'0'+n:n; }
+
+function buildRunTree() {
+  var groups = getGroups(), html='';
+  groups.forEach(function(g,gi) {
+    if (gi>0) html+='<div class="flow-conn" id="rconn-'+gi+'"></div>';
+    if (g.type==='single') {
+      var n=g.nodes[0];
+      html+='<div id="rn-'+n.id+'" style="display:flex;flex-direction:column;align-items:center;margin-bottom:2px">'
+        +'<div class="flow-node" style="width:250px">'
+        +'<div class="fn-color" style="background:'+n.color+'"></div>'
+        +'<div class="fn-info"><div class="fn-role" style="color:'+n.color+'">'+n.role+'</div>'
+        +'<div class="fn-name">'+n.name+'</div><div class="fn-model">'+n.model+'</div></div>'
+        +'<div class="fn-status" id="rns-'+n.id+'"></div></div></div>';
+    } else {
+      var inner=g.nodes.map(function(n){
+        return '<div class="flow-node" style="width:165px" id="rnn-'+n.id+'">'
+          +'<div class="fn-color" style="background:'+n.color+'"></div>'
+          +'<div class="fn-info"><div class="fn-role" style="color:'+n.color+';font-size:7px">'+n.role+'</div>'
+          +'<div class="fn-name" style="font-size:10px">'+n.name+'</div></div>'
+          +'<div class="fn-status" id="rns-'+n.id+'"></div></div>';
+      }).join('');
+      html+='<div id="rn-pg-'+gi+'" style="display:flex;flex-direction:column;align-items:center;margin-bottom:2px">'
+        +'<div style="font-family:var(--mono);font-size:8px;color:var(--ink3);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:4px">并行执行</div>'
+        +'<div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap">'+inner+'</div></div>';
+    }
+  });
+  document.getElementById('run-tree-nodes').innerHTML = html;
+}
+
+function ta(html) {
+  var t=document.getElementById('term-out'), d=document.createElement('div');
+  d.innerHTML=html; t.appendChild(d); t.scrollTop=t.scrollHeight;
+}
+function setNRun(id){ setNS(id,'running'); }
+function setNDone(id){ setNS(id,'done'); }
+function setNS(id,st){
+  var dot=document.getElementById('rns-'+id);
+  var node=document.getElementById('rn-'+id)||document.getElementById('rnn-'+id);
+  if(dot) dot.className='fn-status '+st;
+  if(node){
+    node.style.borderColor = st==='running'?'var(--blue)':st==='done'?'rgba(63,185,80,0.4)':'var(--border)';
+    node.style.background  = st==='running'?'rgba(56,139,253,0.05)':'';
+  }
+}
+function setConn(i){ var c=document.getElementById('rconn-'+i); if(c) c.classList.add('active'); }
+function setProgress(lbl,pct){ document.getElementById('prog-label').textContent=lbl; document.getElementById('prog-fill').style.width=pct+'%'; document.getElementById('prog-pct').textContent=pct+'%'; }
+function setStats(f,c,a,tok,cost){ document.getElementById('ls-findings').textContent=f; document.getElementById('ls-critical').textContent=c; document.getElementById('ls-agents').textContent=a; document.getElementById('ls-tokens').textContent=tok; document.getElementById('ls-cost').textContent='$'+cost.toFixed(2); }
+function setStage(s){ document.getElementById('timer-stage').textContent=s; }
+
+// ══════════════════════════════════════
+// TERMINAL — 5x LOG DETAIL
+// ══════════════════════════════════════
+function runTerminal(target, budget) {
+  var has={};
+  flowNodes.forEach(function(n){ has[n.id]=true; });
+  var par=flowNodes.filter(function(n){return n.type==='parallel';});
+  var off=0;
+  function q(d,fn){ off+=d; runTimers.push(setTimeout(fn,off)); }
+
+  // ── BOOT ──
+  q(0,  function(){ ta('<span class="td">╔══════════════════════════════════════════════╗</span>'); });
+  q(60, function(){ ta('<span class="td">║</span>  <span class="tg">HY-AGI</span>  <span class="tb">Agentic Security Platform v3.0</span>       <span class="td">║</span>'); });
+  q(60, function(){ ta('<span class="td">║</span>  <span class="td">BIT-CIS Team · Enterprise Edition · 2026</span>  <span class="td">║</span>'); });
+  q(60, function(){ ta('<span class="td">╚══════════════════════════════════════════════╝</span>'); });
+  q(200,function(){ ta(''); });
+  q(300,function(){ ta('<span class="tp">$</span> <span class="tb">hy-agi flow create --target '+target+' --budget '+budget+'</span>'); setProgress('初始化',3); setStage('连接 Anthropic API...'); });
+  q(500,function(){ ta('<span class="td">  [init] Connecting to Anthropic API (ZDR · No-Training mode)...</span>'); });
+  q(400,function(){ ta('<span class="td">  [init] Loading security tool registry: nmap, sqlmap, gobuster, metasploit, nuclei...</span>'); });
+  q(350,function(){ ta('<span class="td">  [init] Initializing Docker sandbox environment...</span>'); });
+  q(300,function(){ ta('<span class="ts">  [init] ✓ Flow: </span><span class="tb">flow_'+Math.random().toString(36).substr(2,8)+'  (ZDR verified)</span>'); });
+  q(200,function(){ ta('<span class="td">  [init] Target: '+target+'</span>'); });
+  q(200,function(){ ta('<span class="td">  [init] Scope: '+document.getElementById('cfg-scope').value+'</span>'); });
+  q(200,function(){ ta('<span class="td">  [init] Agents loaded: '+flowNodes.length+' · Parallel workers: '+par.length+'</span>'); });
+  q(300,function(){ ta('<span class="td">  [init] Documents loaded: ISO27001_Policy_2026.pdf · PenTest_Requirements_v2.pdf</span>'); ta(''); });
+
+  // ── ORCHESTRATOR ──
+  if(has.orch){
+    q(500,function(){ setNRun('orch'); setProgress('Orchestrator 分析任务',8); setStage('任务分解中...'); setStats(0,0,1,12,0.04);
+      ta('<span class="tg">[Orchestrator]</span> <span class="td">Analyzing task requirements from uploaded documents...</span>'); });
+    q(600,function(){ ta('<span class="tg">[Orchestrator]</span> <span class="td">Parsing pentest scope: Web App · API · Network layers</span>'); });
+    q(500,function(){ ta('<span class="tg">[Orchestrator]</span> <span class="td">Cross-referencing ISO27001 compliance requirements...</span>'); });
+    q(600,function(){ ta('<span class="tg">[Orchestrator]</span> <span class="td">Decomposing into '+par.length+' parallel subtasks + 2 sequential phases</span>'); });
+    q(500,function(){ ta('<span class="tg">[Orchestrator]</span> <span class="td">Generating execution plan with priority weighting...</span>'); });
+    q(400,function(){ ta('<span class="ts">[Orchestrator]</span> <span class="ts">✓ Execution plan ready: High-priority targets identified</span>'); });
+    q(300,function(){ ta('<span class="tg">[Orchestrator]</span> <span class="td">Dispatching agents to Docker sandboxes...</span>'); setConn(1); });
+    q(400,function(){ setNDone('orch'); setProgress('分派并行任务',14); setStats(0,0,0,28,0.10); });
+  }
+
+  // ── PARALLEL AGENTS ──
+  if(par.length>0){
+    q(500,function(){ ta(''); par.forEach(function(n){setNRun(n.id);}); setStats(0,0,par.length,35,0.18); setProgress('并行执行中',20); setStage('多 Agent 并行执行...'); });
+
+    if(has.sr){
+      q(200,function(){ ta('<span class="tw">[Sr.Pentester]</span>  <span class="td">── Phase 1: Initial Reconnaissance ──</span>'); });
+      q(400,function(){ ta('<span class="tw">[Sr.Pentester]</span>  <span class="td">nmap -sV -sC -p- --script vuln '+target+'</span>'); });
+      q(600,function(){ ta('<span class="td">                 Discovered: 80/tcp http (nginx/1.24.0)</span>'); });
+      q(300,function(){ ta('<span class="td">                 Discovered: 443/tcp https (nginx/1.24.0)</span>'); });
+      q(300,function(){ ta('<span class="td">                 Discovered: 3306/tcp mysql (8.0.32)</span>'); });
+      q(300,function(){ ta('<span class="td">                 Discovered: 8080/tcp http (Apache Tomcat/9.0.65)</span>'); });
+      q(300,function(){ ta('<span class="td">                 Discovered: 22/tcp ssh (OpenSSH 8.9p1)</span>'); });
+      q(400,function(){ ta('<span class="tw">[Sr.Pentester]</span>  <span class="td">── Phase 2: Vulnerability Assessment ──</span>'); });
+      q(400,function(){ ta('<span class="tw">[Sr.Pentester]</span>  <span class="td">nuclei -u https://'+target+' -t cves/ -t vulnerabilities/ -severity critical,high</span>'); });
+      q(500,function(){ ta('<span class="te">                 [CRITICAL] CVE-2024-1086 - nginx path traversal detected</span>'); setStats(2,1,par.length,72,0.38); });
+      q(400,function(){ ta('<span class="tw">[Sr.Pentester]</span>  <span class="td">sqlmap -u "https://'+target+'/api/v1/users?id=1" --batch --level=5</span>'); });
+      q(600,function(){ ta('<span class="te">                 [INJECTABLE] Parameter: id — Type: error-based</span>'); });
+      q(300,function(){ ta('<span class="te">                 [INJECTABLE] DB: MySQL 8.0 — Tables: users, sessions, payments, audit_logs</span>'); setStats(4,2,par.length,95,0.52); });
+      q(400,function(){ ta('<span class="tw">[Sr.Pentester]</span>  <span class="td">── Phase 3: Authentication Bypass ──</span>'); });
+      q(400,function(){ ta('<span class="tw">[Sr.Pentester]</span>  <span class="td">Testing JWT implementation: curl -H "Authorization: Bearer eyJ..." https://'+target+'/api/admin</span>'); });
+      q(500,function(){ ta('<span class="ts">                 [CONFIRMED] JWT alg:none bypass — admin endpoint accessible</span>'); setStats(6,3,par.length,118,0.65); });
+      q(400,function(){ ta('<span class="tw">[Sr.Pentester]</span>  <span class="td">Generating PoC for SQLi: crafting exploit payload...</span>'); });
+      q(500,function(){ ta('<span class="ts">                 PoC saved: poc_sqli_users_table.py</span>'); });
+      q(400,function(){ ta('<span class="tw">[Sr.Pentester]</span>  <span class="td">Testing SSRF on image upload endpoint...</span>'); });
+      q(500,function(){ ta('<span class="te">                 [HIGH] SSRF confirmed — internal 169.254.169.254 accessible</span>'); setStats(8,3,par.length,142,0.78); });
+    }
+
+    if(has.jr){
+      q(300,function(){ ta('<span class="tw">[Jr.Pentester]</span>  <span class="td">── Directory & File Enumeration ──</span>'); });
+      q(400,function(){ ta('<span class="tw">[Jr.Pentester]</span>  <span class="td">gobuster dir -u https://'+target+' -w /usr/share/wordlists/dirb/big.txt -x php,txt,bak</span>'); });
+      q(600,function(){ ta('<span class="ts">                 Found: /.env (200) — exposed environment file</span>'); setStats(10,3,par.length,156,0.88); });
+      q(300,function(){ ta('<span class="ts">                 Found: /admin (302→/admin/login)</span>'); });
+      q(300,function(){ ta('<span class="ts">                 Found: /api/docs (200) — Swagger UI exposed</span>'); });
+      q(300,function(){ ta('<span class="ts">                 Found: /backup.tar.gz (200) — ⚠ source backup exposed</span>'); setStats(12,3,par.length,178,1.02); });
+      q(400,function(){ ta('<span class="tw">[Jr.Pentester]</span>  <span class="td">── Subdomain Enumeration ──</span>'); });
+      q(400,function(){ ta('<span class="tw">[Jr.Pentester]</span>  <span class="td">subfinder -d '+target+' | httpx -silent</span>'); });
+      q(500,function(){ ta('<span class="ts">                 dev.'+target+' (200) — development environment exposed to internet</span>'); });
+      q(300,function(){ ta('<span class="ts">                 staging.'+target+' (200) — staging with debug mode ON</span>'); });
+      q(300,function(){ ta('<span class="ts">                 api.'+target+' (200) — API v1 & v2 accessible</span>'); setStats(14,3,par.length,198,1.15); });
+      q(400,function(){ ta('<span class="tw">[Jr.Pentester]</span>  <span class="td">── OSINT Collection ──</span>'); });
+      q(400,function(){ ta('<span class="tw">[Jr.Pentester]</span>  <span class="td">theHarvester -d '+target+' -l 500 -b google,bing,linkedin</span>'); });
+      q(500,function(){ ta('<span class="td">                 Emails: 12 found (incl. admin@, devops@, security@)</span>'); });
+      q(300,function(){ ta('<span class="td">                 LinkedIn: 34 employees identified, tech stack exposed</span>'); setStats(16,3,par.length,215,1.28); });
+    }
+
+    if(has.web){
+      q(200,function(){ ta('<span class="tw">[Web.Tester]</span>   <span class="td">── Web Application Security Testing ──</span>'); });
+      q(400,function(){ ta('<span class="tw">[Web.Tester]</span>   <span class="td">zaproxy -cmd -quickurl https://'+target+' -quickprogress</span>'); });
+      q(600,function(){ ta('<span class="te">                 [HIGH] Reflected XSS in ?q= parameter: &lt;script&gt;alert(1)&lt;/script&gt;</span>'); setStats(17,3,par.length,232,1.38); });
+      q(400,function(){ ta('<span class="te">                 [HIGH] Stored XSS in user profile bio field</span>'); });
+      q(400,function(){ ta('<span class="tw">[Web.Tester]</span>   <span class="td">Testing CSRF protections on sensitive forms...</span>'); });
+      q(500,function(){ ta('<span class="te">                 [MEDIUM] Missing CSRF token on /api/v1/account/update</span>'); setStats(19,3,par.length,248,1.52); });
+      q(400,function(){ ta('<span class="tw">[Web.Tester]</span>   <span class="td">Testing IDOR on order endpoints: /api/v1/orders/1..5000</span>'); });
+      q(500,function(){ ta('<span class="te">                 [HIGH] IDOR confirmed — all orders accessible by any auth user</span>'); setStats(21,4,par.length,265,1.65); });
+    }
+
+    if(has.net){
+      q(300,function(){ ta('<span class="tw">[Net.Attack]</span>   <span class="td">── Network Layer Assessment ──</span>'); });
+      q(400,function(){ ta('<span class="tw">[Net.Attack]</span>   <span class="td">masscan -p1-65535 '+target+' --rate=1000</span>'); });
+      q(600,function(){ ta('<span class="td">                 Open ports: 22, 80, 443, 3306, 8080, 6379 (Redis)</span>'); });
+      q(400,function(){ ta('<span class="te">                 [CRITICAL] Redis 6379 exposed — no auth required</span>'); setStats(22,5,par.length,280,1.78); });
+      q(400,function(){ ta('<span class="tw">[Net.Attack]</span>   <span class="td">Testing SSL/TLS configuration...</span>'); });
+      q(400,function(){ ta('<span class="te">                 [MEDIUM] TLS 1.0/1.1 enabled — deprecated protocols</span>'); });
+      q(300,function(){ ta('<span class="te">                 [LOW] HSTS not configured on subdomain</span>'); setStats(24,5,par.length,296,1.92); });
+    }
+
+    if(has.cloud){
+      q(200,function(){ ta('<span class="tw">[Cloud.Red]</span>    <span class="td">── Cloud Security Assessment ──</span>'); });
+      q(400,function(){ ta('<span class="tw">[Cloud.Red]</span>    <span class="td">aws s3 ls --no-sign-request s3://'+target.split('.')[0]+'-backup</span>'); });
+      q(500,function(){ ta('<span class="te">                 [CRITICAL] Public S3 bucket — customer_data_2025.csv exposed</span>'); setStats(25,6,par.length,312,2.05); });
+      q(400,function(){ ta('<span class="tw">[Cloud.Red]</span>    <span class="td">Checking IAM misconfigurations...</span>'); });
+      q(500,function(){ ta('<span class="te">                 [HIGH] Over-privileged IAM role: lambda-exec has s3:* permissions</span>'); setStats(26,6,par.length,325,2.18); });
+    }
+
+    if(has.apt){
+      q(200,function(){ ta('<span class="tpurp">[APT.Sim]</span>      <span class="td">── Advanced Persistent Threat Simulation ──</span>'); });
+      q(400,function(){ ta('<span class="tpurp">[APT.Sim]</span>      <span class="td">Simulating APT29 (Cozy Bear) TTP framework...</span>'); });
+      q(500,function(){ ta('<span class="tpurp">[APT.Sim]</span>      <span class="td">T1566.001 Phishing: Crafting spear-phishing template for '+target+'</span>'); });
+      q(400,function(){ ta('<span class="tpurp">[APT.Sim]</span>      <span class="td">T1078 Valid Accounts: Testing credential stuffing with HIBP dataset</span>'); });
+      q(500,function(){ ta('<span class="te">                 [HIGH] 3 accounts with breached credentials found</span>'); setStats(27,6,par.length,340,2.32); });
+      q(400,function(){ ta('<span class="tpurp">[APT.Sim]</span>      <span class="td">T1021 Remote Services: Testing lateral movement paths...</span>'); });
+      q(500,function(){ ta('<span class="tpurp">[APT.Sim]</span>      <span class="td">T1560 Archive Collected Data: Simulating data exfiltration path</span>'); setStats(29,6,par.length,358,2.45); });
+    }
+
+    if(has.recon){
+      q(200,function(){ ta('<span class="tcyan">[OSINT.Recon]</span>  <span class="td">── Open Source Intelligence Gathering ──</span>'); });
+      q(400,function(){ ta('<span class="tcyan">[OSINT.Recon]</span>  <span class="td">Searching Shodan for '+target+' assets...</span>'); });
+      q(500,function(){ ta('<span class="td">                 Shodan: 7 exposed services, 2 with known CVEs</span>'); });
+      q(400,function(){ ta('<span class="tcyan">[OSINT.Recon]</span>  <span class="td">GitHub dork search: org:'+target.split('.')[0]+' password OR secret OR api_key</span>'); });
+      q(500,function(){ ta('<span class="te">                 [HIGH] Hardcoded AWS key found in public repo (now rotated?)</span>'); setStats(30,6,par.length,372,2.58); });
+    }
+
+    if(has.threat){
+      q(200,function(){ ta('<span class="tpurp">[ThreatIntel]</span>  <span class="td">── Threat Intelligence Correlation ──</span>'); });
+      q(400,function(){ ta('<span class="tpurp">[ThreatIntel]</span>  <span class="td">Querying VirusTotal, Shodan, AlienVault OTX for '+target+'...</span>'); });
+      q(500,function(){ ta('<span class="td">                 CVE-2024-1086 matches 3 active exploit kits in wild</span>'); });
+      q(400,function(){ ta('<span class="tpurp">[ThreatIntel]</span>  <span class="td">Checking dark web mentions for '+target+'...</span>'); });
+      q(500,function(){ ta('<span class="te">                 [MEDIUM] Domain mentioned in 2 threat actor forums (last 90d)</span>'); setStats(31,6,par.length,385,2.68); });
+    }
+
+    if(has.grc){
+      q(300,function(){ ta('<span class="tcyan">[GRC.Agent]</span>   <span class="td">── Compliance Framework Assessment ──</span>'); });
+      q(400,function(){ ta('<span class="tcyan">[GRC.Agent]</span>   <span class="td">Loading ISO 27001:2022 control framework...</span>'); });
+      q(500,function(){ ta('<span class="te">                 A.5.14 Information transfer policies — NOT IMPLEMENTED</span>'); });
+      q(300,function(){ ta('<span class="te">                 A.8.10 Information deletion — PARTIAL IMPLEMENTATION</span>'); });
+      q(400,function(){ ta('<span class="tcyan">[GRC.Agent]</span>   <span class="td">Checking OWASP ASVS Level 2 requirements...</span>'); });
+      q(400,function(){ ta('<span class="te">                 V2.1 Password Security — FAIL (no complexity enforcement)</span>'); });
+      q(300,function(){ ta('<span class="te">                 V3.2 Session Binding — FAIL (weak session tokens)</span>'); setStats(32,6,par.length,398,2.78); });
+    }
+
+    if(has.pci){
+      q(200,function(){ ta('<span class="tg">[PCI.Auditor]</span>  <span class="td">── PCI-DSS v4.0 Assessment ──</span>'); });
+      q(400,function(){ ta('<span class="tg">[PCI.Auditor]</span>  <span class="td">Req 1: Network Security Controls — checking firewall rules...</span>'); });
+      q(400,function(){ ta('<span class="te">                 FAIL: Inbound rules allow 0.0.0.0/0 on port 3306</span>'); });
+      q(400,function(){ ta('<span class="tg">[PCI.Auditor]</span>  <span class="td">Req 3: Protect Account Data — checking encryption at rest...</span>'); });
+      q(400,function(){ ta('<span class="te">                 FAIL: PAN data stored unencrypted in payments table</span>'); setStats(33,7,par.length,412,2.92); });
+      q(400,function(){ ta('<span class="tg">[PCI.Auditor]</span>  <span class="td">Req 6: Secure Systems & Software — checking patch levels...</span>'); });
+      q(400,function(){ ta('<span class="te">                 FAIL: MySQL 8.0.32 has 3 unpatched critical CVEs</span>'); setStats(34,7,par.length,428,3.05); });
+    }
+
+    if(has.iso){
+      q(200,function(){ ta('<span class="tcyan">[ISO.27001]</span>    <span class="td">── ISO 27001:2022 Gap Analysis ──</span>'); });
+      q(400,function(){ ta('<span class="tcyan">[ISO.27001]</span>    <span class="td">Annex A.9 Access Control — reviewing IAM policies...</span>'); });
+      q(400,function(){ ta('<span class="te">                 GAP: No formal access review process documented</span>'); });
+      q(400,function(){ ta('<span class="tcyan">[ISO.27001]</span>    <span class="td">Annex A.12 Operations Security — checking change management...</span>'); });
+      q(400,function(){ ta('<span class="ts">                 PASS: Change management process documented and followed</span>'); setStats(35,7,par.length,442,3.18); });
+    }
+
+    if(has.arch){
+      q(200,function(){ ta('<span class="tb">[Sec.Arch]</span>    <span class="td">── Security Architecture Review ──</span>'); });
+      q(400,function(){ ta('<span class="tb">[Sec.Arch]</span>    <span class="td">Analyzing network segmentation and trust boundaries...</span>'); });
+      q(500,function(){ ta('<span class="te">                 [HIGH] No DMZ — web servers in same segment as DB</span>'); setStats(36,7,par.length,458,3.32); });
+      q(400,function(){ ta('<span class="tb">[Sec.Arch]</span>    <span class="td">STRIDE threat modeling for authentication flow...</span>'); });
+      q(500,function(){ ta('<span class="te">                 Spoofing: JWT weakness allows identity spoofing (confirmed)</span>'); });
+      q(300,function(){ ta('<span class="te">                 Tampering: No request signing on API endpoints</span>'); setStats(37,7,par.length,472,3.45); });
+    }
+
+    if(has.mal){
+      q(200,function(){ ta('<span class="tpurp">[Mal.Analyst]</span>  <span class="td">── Malware & Threat Analysis ──</span>'); });
+      q(400,function(){ ta('<span class="tpurp">[Mal.Analyst]</span>  <span class="td">Analyzing suspicious file upload behavior on /api/upload...</span>'); });
+      q(500,function(){ ta('<span class="te">                 [CRITICAL] No file type validation — webshell upload possible</span>'); setStats(38,8,par.length,485,3.58); });
+    }
+
+    if(has.dfir){
+      q(200,function(){ ta('<span class="tpurp">[DFIR.Agent]</span>   <span class="td">── Digital Forensics & IR Assessment ──</span>'); });
+      q(400,function(){ ta('<span class="tpurp">[DFIR.Agent]</span>   <span class="td">Reviewing audit log configuration and retention...</span>'); });
+      q(500,function(){ ta('<span class="te">                 [MEDIUM] Security events not forwarded to SIEM</span>'); setStats(39,8,par.length,498,3.72); });
+    }
+
+    if(has.nist){
+      q(200,function(){ ta('<span class="tg">[NIST.CSF]</span>    <span class="td">── NIST Cybersecurity Framework Assessment ──</span>'); });
+      q(400,function(){ ta('<span class="tg">[NIST.CSF]</span>    <span class="td">ID.AM: Asset Management — checking inventory...</span>'); });
+      q(400,function(){ ta('<span class="te">                 GAP: No complete asset inventory maintained</span>'); setStats(40,8,par.length,512,3.85); });
+    }
+
+    if(has.gdpr){
+      q(200,function(){ ta('<span class="tw">[GDPR.Check]</span>   <span class="td">── GDPR Data Protection Assessment ──</span>'); });
+      q(400,function(){ ta('<span class="tw">[GDPR.Check]</span>   <span class="td">Checking personal data processing records (ROPA)...</span>'); });
+      q(400,function(){ ta('<span class="te">                 FAIL: No Data Protection Impact Assessment for new features</span>'); setStats(41,8,par.length,525,3.98); });
+    }
+
+    // All parallel done
+    var total = 28 + (has.web?3:0) + (has.net?3:0) + (has.cloud?2:0) + (has.apt?4:0) + (has.recon?2:0) + (has.threat?2:0) + (has.grc?3:0) + (has.pci?4:0) + (has.iso?2:0) + (has.arch?3:0) + (has.mal?1:0) + (has.dfir?1:0) + (has.nist?1:0) + (has.gdpr?1:0);
+    q(800,function(){
+      par.forEach(function(n){setNDone(n.id);});
+      setStats(total,8,0,Math.floor(total*14),parseFloat((total*0.12).toFixed(2)));
+      setProgress('并行任务完成',68); ta(''); setConn(2);
+      setStage('汇聚结果中...');
+    });
+  }
+
+  // ── REVIEWER ──
+  if(has.rev){
+    var total2 = 28;
+    q(500,function(){ setNRun('rev'); setProgress('Reviewer 交叉验证',75); setStats(total2,8,1,Math.floor(total2*14)+25,parseFloat((total2*0.12+0.22).toFixed(2)));
+      ta('<span class="ts">[Reviewer]</span>    <span class="td">Cross-validating all findings across agents...</span>'); setStage('交叉验证中...'); });
+    q(600,function(){ ta('<span class="ts">[Reviewer]</span>    <span class="td">Deduplicating overlapping findings between agents...</span>'); });
+    q(500,function(){ ta('<span class="ts">[Reviewer]</span>    <span class="td">Verifying CVSS scores against NVD database...</span>'); });
+    q(500,function(){ ta('<span class="ts">[Reviewer]</span>    <span class="td">Removing 2 false positives (rate: 4.2%)...</span>'); });
+    q(400,function(){ ta('<span class="ts">[Reviewer]</span>    <span class="ts">✓ Final: '+total2+' verified findings — 4 Crit · 10 High · 9 Med · 5 Low</span>');
+      setStats(total2,4,1,Math.floor(total2*14)+40,parseFloat((total2*0.12+0.28).toFixed(2))); setConn(3); });
+    q(400,function(){ setNDone('rev'); setProgress('生成报告中',88); });
+  }
+
+  // ── REPORTER ──
+  if(has.rep){
+    var fcost = parseFloat((flowNodes.length * 0.18 + 1.2).toFixed(2));
+    q(500,function(){ setNRun('rep'); setProgress('Reporter 生成报告',91); setStage('报告生成中...');
+      ta(''); ta('<span class="ts">[Reporter]</span>    <span class="td">Generating structured CVSS report...</span>'); });
+    q(500,function(){ ta('<span class="ts">[Reporter]</span>    <span class="td">Mapping findings to MITRE ATT&CK framework...</span>'); });
+    q(500,function(){ ta('<span class="ts">[Reporter]</span>    <span class="td">Generating remediation recommendations with priority matrix...</span>'); });
+    q(400,function(){ ta('<span class="ts">[Reporter]</span>    <span class="td">Creating executive summary for CIS/Management...</span>'); });
+    q(400,function(){ ta('<span class="ts">[Reporter]</span>    <span class="ts">✓ pentest_compliance_report_'+target.replace(/\./g,'_')+'_2026.pdf</span>');
+      setStats(28,4,0,Math.floor(28*14)+65,fcost); setProgress('COMPLETE ✓',100); setConn(4); setStage('✓ 执行完成'); });
+    q(300,function(){ setNDone('rep'); });
+    q(200,function(){ ta(''); ta('<span class="td">══════════════════════════════════════════════════</span>'); });
+    q(80, function(){ ta('<span class="tg"> COMPLETE</span><span class="td"> · '+28+' verified findings · 97% coverage · $'+fcost+'</span>'); });
+    q(80, function(){ ta('<span class="td"> Time: '+fmtTime(elapsedSec)+' · Tokens: ~'+(Math.floor(28*14)+65)+'K</span>'); });
+    q(80, function(){ ta('<span class="td">══════════════════════════════════════════════════</span>'); });
+    q(500,function(){
+      clearInterval(timerInterval);
+      document.getElementById('timer-countdown').textContent = '00:00:00';
+      showReport(target, fcost);
+    });
+  }
+}
+
+// ══════════════════════════════════════
+// REPORT
+// ══════════════════════════════════════
+var _reportTarget = '', _reportCost = 0;
+
+function showReport(target, cost) {
+  setPhase(4);
+  _reportTarget = target;
+  _reportCost = cost;
+  // Show password gate
+  var gate = document.getElementById('report-gate');
+  gate.classList.add('show');
+  setTimeout(function(){ document.getElementById('gate-pass').focus(); }, 200);
+}
+
+function verifyReportPass() {
+  var pass = document.getElementById('gate-pass').value;
+  var err  = document.getElementById('gate-error');
+  if (!pass) { err.textContent = '请输入密码'; return; }
+  // Accept any non-empty password - simulate auth
+  var btn = document.querySelector('.gate-btn');
+  btn.textContent = '验证中...';
+  setTimeout(function() {
+    btn.textContent = '▶ 验证访问权限';
+    document.getElementById('report-gate').classList.remove('show');
+    document.getElementById('gate-pass').value = '';
+    err.textContent = '';
+    openReportPage(_reportTarget, _reportCost);
+  }, 900);
+}
+
+function openReportPage(target, cost) {
+  var page = document.getElementById('report-page');
+  var body = document.getElementById('report-page-body');
+  page.classList.add('show');
+  page.scrollTop = 0;
+
+  // Build tree + role reports
+  body.innerHTML = buildReportTree(target, cost);
+
+  // Animate nodes in sequence
+  var nodes = body.querySelectorAll('.rr-card');
+  nodes.forEach(function(n, i) {
+    n.style.opacity = '0';
+    n.style.transform = 'translateY(16px)';
+    setTimeout(function() {
+      n.style.transition = 'all 0.4s';
+      n.style.opacity = '1';
+      n.style.transform = 'translateY(0)';
+    }, i * 150 + 200);
+  });
+}
+
+function closeReportPage() {
+  document.getElementById('report-page').classList.remove('show');
+}
+
+// ══════════════════════════════════════
+// UTILS
+// ══════════════════════════════════════
+function setPhase(n){
+  ['ph1','ph2','ph3','ph4'].forEach(function(id,i){
+    document.getElementById(id).className=(i+1<n)?'phase-dot done':(i+1===n)?'phase-dot active':'phase-dot';
+  });
+  document.getElementById('phase-label').textContent=['','构建流程','配置参数','执行中...','查看报告'][n]||'';
+}
+function showToast(msg){ var t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(function(){t.classList.remove('show');},2200); }
+// Gate enter key - bind after DOM ready via event in HTML
+function gateKeydown(e){ if(e.key==='Enter') verifyReportPass(); }
+
+function resetAll(){
+  runTimers.forEach(clearTimeout); runTimers=[];
+  clearInterval(timerInterval); timerInterval=null;
+  document.getElementById('run-view').classList.remove('show');
+  document.getElementById('report-page').classList.remove('show');
+  document.getElementById('report-gate').classList.remove('show');
+  document.getElementById('report-page-body').innerHTML='';
+  document.getElementById('build-view').classList.remove('hide');
+  document.getElementById('term-out').innerHTML='';
+  setPhase(1); setProgress('初始化中...',0); setStats(0,0,0,0,0);
+  document.getElementById('timer-countdown').textContent='--:--:--';
+  document.getElementById('timer-elapsed').textContent='00:00:00';
+  elapsedSec=0; countdownSec=0;
+}
+
+// ══════════════════════════════════════
+// AGENT CONFIG
+// ══════════════════════════════════════
+var currentConfigId = null;
+
+function openAgentConfig(e, id) {
+  if (e) { e.preventDefault(); e.stopPropagation(); }
+  var def = ALL_CARDS.find(function(c){ return c.id === id; });
+  var cfg = AGENT_CONFIGS[id];
+  if (!def || !cfg) { alert('Config not found for: ' + id); return; }
+  currentConfigId = id;
+
+  document.getElementById('acm-color-bar').style.background = def.color;
+  document.getElementById('acm-agent-name').textContent = def.name;
+  document.getElementById('acm-agent-role').textContent = def.role + ' · 配置面板';
+
+  setSlider('acm-cost',    cfg.maxCost,    '$','',     'acm-cost-disp',    2);
+  setSlider('acm-calls',   cfg.maxCalls,   '','次',    'acm-calls-disp',   0);
+  setSlider('acm-timeout', cfg.timeout,    '','分钟',  'acm-timeout-disp', 0);
+  setSlider('acm-temp',    cfg.temperature,'','',      'acm-temp-disp',    2);
+  setSlider('acm-retry',   cfg.retryLimit, '','次',    'acm-retry-disp',   0);
+
+  selectModel(cfg.model || def.model);
+  selectPriority(cfg.priority || 'medium');
+  selectMemory(cfg.memoryMode || 'none');
+  renderSkills(id);
+  updateCostEstimate();
+
+  document.getElementById('agent-config-modal').classList.add('show');
+}
+
+function closeAgentConfig() {
+  document.getElementById('agent-config-modal').classList.remove('show');
+  currentConfigId = null;
+}
+
+function setSlider(sid, val, pre, suf, dispId, dec) {
+  var s = document.getElementById(sid);
+  var d = document.getElementById(dispId);
+  if (s) s.value = val;
+  if (d) d.textContent = pre + parseFloat(val).toFixed(dec) + suf;
+}
+
+function updateSlider(sid, pre, suf, dispId, dec) {
+  var val = document.getElementById(sid).value;
+  document.getElementById(dispId).textContent = pre + parseFloat(val).toFixed(dec) + suf;
+  updateCostEstimate();
+}
+
+function selectModel(model) {
+  ['claude-opus-4-6','claude-sonnet-4-6','claude-haiku-4-5'].forEach(function(m) {
+    var el = document.getElementById('mdl-' + m);
+    if (el) el.classList.toggle('selected', m === model);
+  });
+  if (currentConfigId && AGENT_CONFIGS[currentConfigId]) AGENT_CONFIGS[currentConfigId].model = model;
+  updateCostEstimate();
+}
+
+function selectPriority(p) {
+  ['high','medium','low'].forEach(function(lv) {
+    var el = document.getElementById('prio-' + lv);
+    if (!el) return;
+    el.className = 'acm-prio-btn' + (lv === p ? ' selected-' + lv : '');
+  });
+  if (currentConfigId && AGENT_CONFIGS[currentConfigId]) AGENT_CONFIGS[currentConfigId].priority = p;
+}
+
+function selectMemory(mode) {
+  ['none','vector','graph'].forEach(function(m) {
+    var el = document.getElementById('mem-' + m);
+    if (el) el.classList.toggle('selected', m === mode);
+  });
+  if (currentConfigId && AGENT_CONFIGS[currentConfigId]) AGENT_CONFIGS[currentConfigId].memoryMode = mode;
+}
+
+function renderSkills(id) {
+  var cfg = AGENT_CONFIGS[id];
+  if (!cfg) return;
+  var grid = document.getElementById('acm-skills-grid');
+  if (!grid) return;
+  grid.innerHTML = cfg.skills.map(function(sk) {
+    var on = cfg.enabledSkills.indexOf(sk) >= 0;
+    return '<div class="acm-skill' + (on ? ' on' : '') + '" data-skill="' + sk + '">'
+      + (SKILL_LABELS[sk] || sk) + '</div>';
+  }).join('');
+  grid.querySelectorAll('.acm-skill').forEach(function(el) {
+    el.addEventListener('click', function() { toggleSkill(el.dataset.skill); });
+  });
+  updateSkillCount(id);
+}
+
+function toggleSkill(sk) {
+  if (!currentConfigId) return;
+  var cfg = AGENT_CONFIGS[currentConfigId];
+  var idx = cfg.enabledSkills.indexOf(sk);
+  if (idx >= 0) cfg.enabledSkills.splice(idx, 1);
+  else cfg.enabledSkills.push(sk);
+  var el = document.querySelector('[data-skill="' + sk + '"]');
+  if (el) el.classList.toggle('on', cfg.enabledSkills.indexOf(sk) >= 0);
+  updateSkillCount(currentConfigId);
+}
+
+function updateSkillCount(id) {
+  var cfg = AGENT_CONFIGS[id];
+  var el = document.getElementById('acm-skill-count');
+  if (el) el.textContent = cfg.enabledSkills.length + ' / ' + cfg.skills.length + ' 已启用';
+}
+
+function updateCostEstimate() {
+  var cs = document.getElementById('acm-cost');
+  var cl = document.getElementById('acm-calls');
+  if (!cs || !cl) return;
+  var model = currentConfigId && AGENT_CONFIGS[currentConfigId] ? AGENT_CONFIGS[currentConfigId].model : 'claude-sonnet-4-6';
+  var perCall = model === 'claude-opus-4-6' ? 0.045 : model === 'claude-haiku-4-5' ? 0.004 : 0.018;
+  var est = Math.min(parseFloat(cs.value), parseInt(cl.value) * perCall).toFixed(2);
+  var el = document.getElementById('acm-est-cost');
+  if (el) { el.textContent = '$' + est; el.style.color = parseFloat(est) > 3 ? 'var(--amber)' : 'var(--blue)'; }
+}
+
+function saveAgentConfig() {
+  if (!currentConfigId) return;
+  var cfg = AGENT_CONFIGS[currentConfigId];
+  cfg.maxCost    = parseFloat(document.getElementById('acm-cost').value);
+  cfg.maxCalls   = parseInt(document.getElementById('acm-calls').value);
+  cfg.timeout    = parseInt(document.getElementById('acm-timeout').value);
+  cfg.temperature= parseFloat(document.getElementById('acm-temp').value);
+  cfg.retryLimit = parseInt(document.getElementById('acm-retry').value);
+  configModified[currentConfigId] = true;
+  closeAgentConfig();
+  renderCards(currentCat);
+  showToast('⚙ ' + currentConfigId + ' 配置已保存');
+}
+
+function resetAgentConfig() {
+  if (!currentConfigId) return;
+  var id = currentConfigId;
+  // Reset to original defaults from ALL_CARDS
+  var def = ALL_CARDS.find(function(c){ return c.id === id; });
+  if (!def) return;
+  var orig = {
+    orch:  {maxCost:5,maxCalls:100,timeout:30,priority:'high',  temperature:0.2,memoryMode:'graph', retryLimit:3,model:'claude-opus-4-6',  skills:['task_decomposition','agent_dispatch','result_aggregation','loop_detection','context_management'],enabledSkills:['task_decomposition','agent_dispatch','result_aggregation','loop_detection']},
+    sr:    {maxCost:2,maxCalls:100,timeout:60,priority:'high',  temperature:0.4,memoryMode:'vector',retryLimit:3,model:'claude-sonnet-4-6',skills:['sqli_detection','xss_exploitation','jwt_bypass','ssrf','rce_exploitation','privilege_escalation','poc_generation'],enabledSkills:['sqli_detection','xss_exploitation','jwt_bypass','poc_generation']},
+    jr:    {maxCost:0.8,maxCalls:100,timeout:60,priority:'medium',temperature:0.3,memoryMode:'none',retryLimit:2,model:'claude-haiku-4-5', skills:['port_scanning','dir_enumeration','osint','subdomain_enum','banner_grabbing','screenshot'],enabledSkills:['port_scanning','dir_enumeration','osint','subdomain_enum']},
+    rep:   {maxCost:0.8,maxCalls:30, timeout:30,priority:'high',  temperature:0.2,memoryMode:'none', retryLimit:2,model:'claude-sonnet-4-6',skills:['cvss_report','exec_summary','remediation_guide','mitre_mapping','pdf_gen','evidence_attach'],enabledSkills:['cvss_report','exec_summary','remediation_guide']},
+  };
+  if (orig[id]) Object.assign(AGENT_CONFIGS[id], orig[id]);
+  delete configModified[id];
+  openAgentConfig(null, id);
+  showToast('↺ 已恢复默认配置');
+}
+
+
+// ══════════════════════════════════════
+// EXPORT MODAL
+// ══════════════════════════════════════
+var selectedFmt = 'pdf';
+var encryptOn = false;
+
+function openExportModal() {
+  selectedFmt = 'pdf';
+  encryptOn = false;
+  document.getElementById('enc-toggle').classList.remove('on');
+  document.getElementById('enc-pass-section').classList.remove('show');
+  document.getElementById('enc-password').value = '';
+  ['eb1','eb2','eb3','eb4'].forEach(function(id){ document.getElementById(id).style.background='var(--bg4)'; });
+  document.getElementById('enc-str-label').textContent = '—';
+  document.getElementById('export-main-view').style.display = 'block';
+  document.getElementById('export-progress-view').classList.remove('show');
+  selectFmt('pdf');
+  document.getElementById('export-modal').classList.add('show');
+}
+
+function closeExportModal() {
+  document.getElementById('export-modal').classList.remove('show');
+}
+
+function selectFmt(fmt) {
+  selectedFmt = fmt;
+  ['pdf','xlsx','csv','sysreptor'].forEach(function(f) {
+    var el = document.getElementById('fmt-' + f);
+    if (el) el.classList.toggle('selected', f === fmt);
+  });
+  var encToggle = document.getElementById('enc-toggle');
+  var encSection = document.getElementById('enc-pass-section');
+  if (fmt === 'csv') {
+    if (encryptOn) { encryptOn = false; encToggle.classList.remove('on'); encSection.classList.remove('show'); }
+    encToggle.style.opacity = '0.3';
+    encToggle.style.pointerEvents = 'none';
+  } else {
+    encToggle.style.opacity = '1';
+    encToggle.style.pointerEvents = 'auto';
+  }
+}
+
+function toggleEncrypt() {
+  if (selectedFmt === 'csv') return;
+  encryptOn = !encryptOn;
+  document.getElementById('enc-toggle').classList.toggle('on', encryptOn);
+  document.getElementById('enc-pass-section').classList.toggle('show', encryptOn);
+  if (encryptOn) setTimeout(function(){ document.getElementById('enc-password').focus(); }, 150);
+}
+
+function toggleOpt(id) {
+  document.getElementById(id).classList.toggle('on');
+}
+
+function checkStrength() {
+  var pw = document.getElementById('enc-password').value;
+  var score = 0;
+  if (pw.length >= 8) score++;
+  if (pw.length >= 12) score++;
+  if (/[A-Z]/.test(pw) && /[a-z]/.test(pw)) score++;
+  if (/[0-9]/.test(pw) && /[^A-Za-z0-9]/.test(pw)) score++;
+  var colors = ['','#f85149','#d29922','#3fb950','#388bfd'];
+  var labels = ['—','弱','中','强','极强'];
+  ['eb1','eb2','eb3','eb4'].forEach(function(id, i) {
+    document.getElementById(id).style.background = (i < score) ? colors[score] : 'var(--bg4)';
+  });
+  document.getElementById('enc-str-label').textContent = labels[score] || '—';
+  document.getElementById('enc-str-label').style.color = colors[score] || 'var(--ink3)';
+}
+
+var exportSteps = {
+  pdf:       ['正在渲染报告页面...','生成 CVSS 图表...','嵌入 PoC 代码块...','应用 AES-256 加密...','打包 PDF 文件...','导出完成 ✓'],
+  xlsx:      ['提取漏洞数据...','生成工作表结构...','填充合规映射表...','应用工作簿密码...','生成 XLSX 文件...','导出完成 ✓'],
+  csv:       ['提取漏洞字段...','格式化 CSV 列...','生成摘要行...','写入文件...','导出完成 ✓'],
+  sysreptor: ['序列化报告数据...','映射 Sysreptor 字段...','生成 findings JSON...','附加合规元数据...','打包 .reptor 文件...','导出完成 ✓']
+};
+
+var fmtLabels = {pdf:'PDF Report', xlsx:'Excel XLSX', csv:'CSV 数据', sysreptor:'Sysreptor .reptor'};
+var fmtIcons  = {pdf:'📄', xlsx:'📊', csv:'📋', sysreptor:'🛡️'};
+
+function startExport() {
+  var encPass = document.getElementById('enc-password').value;
+  if (encryptOn && !encPass && selectedFmt !== 'csv') {
+    document.getElementById('enc-password').style.borderColor = 'var(--red)';
+    document.getElementById('enc-password').focus();
+    setTimeout(function(){ document.getElementById('enc-password').style.borderColor = ''; }, 1500);
+    return;
+  }
+  document.getElementById('export-main-view').style.display = 'none';
+  var pv = document.getElementById('export-progress-view');
+  pv.classList.add('show');
+  var steps = exportSteps[selectedFmt] || exportSteps.pdf;
+  var i = 0;
+  var label = document.getElementById('ep-label');
+  var bar   = document.getElementById('ep-bar');
+  function nextStep() {
+    if (i >= steps.length) {
+      setTimeout(function() {
+        closeExportModal();
+        var fname = 'HyAGI_Report_2026.' + (selectedFmt === 'sysreptor' ? 'reptor' : selectedFmt);
+        showToast(fmtIcons[selectedFmt] + ' ' + fname + (encryptOn ? ' (已加密)' : '') + ' 已生成');
+        document.getElementById('export-main-view').style.display = 'block';
+        pv.classList.remove('show');
+        bar.style.width = '0%';
+      }, 500);
+      return;
+    }
+    label.textContent = steps[i];
+    bar.style.width = Math.round(((i + 1) / steps.length) * 100) + '%';
+    i++;
+    setTimeout(nextStep, 350 + Math.random() * 250);
+  }
+  nextStep();
+}
+
+
+// ══════════════════════════════════════
+// ROLE REPORT TREE
+// ══════════════════════════════════════
+
+var ROLE_REPORTS = {
+  orchestrator: {
+    color: '#388bfd', icon: '🧠',
+    role: 'PT Manager · Orchestrator',
+    name: 'PT Manager 综合报告',
+    sub: 'Executive Summary · Cost Analysis · Action Plan',
+    findings: '27 发现 · 4 严重'
+  },
+  pentest: {
+    color: '#f85149', icon: '🔴',
+    role: 'Sr. Pentester + Jr. Pentester',
+    name: '渗透测试技术报告',
+    sub: 'Technical Findings · PoC · Exploitation Chain',
+    findings: '16 技术发现 · 4 严重'
+  },
+  grc: {
+    color: '#3fb950', icon: '⚖️',
+    role: 'GRC Agent',
+    name: '合规审计报告',
+    sub: 'PCI-DSS · ISO 27001 · OWASP · GDPR',
+    findings: '8 合规缺口 · 3 严重不符'
+  },
+  architect: {
+    color: '#58a6ff', icon: '🏗️',
+    role: 'Security Architect',
+    name: '安全架构评估报告',
+    sub: 'STRIDE · Rich Picture · Architecture Review',
+    findings: '6 架构风险 · 2 设计缺陷'
+  },
+  reviewer: {
+    color: '#39d353', icon: '🔍',
+    role: 'Reviewer',
+    name: 'QA 验证报告',
+    sub: 'Cross-Validation · Quality Gate',
+    findings: '验证 28→27 · 误报率 3.6%'
+  }
+};
+
+// ── Rich report HTML builders ──
+
+function buildPentestReport() {
+  return `
+<div style="font-family:var(--sans)">
+  <!-- Attack Chain Visual -->
+  <div style="margin-bottom:20px">
+    <div style="font-family:var(--mono);font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:var(--red);margin-bottom:10px;border-bottom:1px solid var(--border);padding-bottom:6px">⚔ 攻击链全景图</div>
+    <div style="display:flex;align-items:center;gap:0;overflow-x:auto;padding:4px 0 8px">
+      ${['🔍 侦察', '🗺 枚举', '⚡ 漏洞利用', '🔑 权限提升', '📦 数据外渗'].map((s,i,a) =>
+        `<div style="display:flex;align-items:center;flex-shrink:0">
+          <div style="padding:8px 14px;background:${['rgba(248,81,73,0.08)','rgba(210,153,34,0.08)','rgba(248,81,73,0.15)','rgba(248,81,73,0.2)','rgba(248,81,73,0.25)'][i]};border:1px solid ${['rgba(248,81,73,0.2)','rgba(210,153,34,0.3)','rgba(248,81,73,0.35)','rgba(248,81,73,0.4)','rgba(248,81,73,0.5)'][i]};border-radius:6px;text-align:center;min-width:90px">
+            <div style="font-size:18px;margin-bottom:3px">${s.split(' ')[0]}</div>
+            <div style="font-family:var(--mono);font-size:8px;color:var(--ink2)">${s.split(' ').slice(1).join(' ')}</div>
+          </div>
+          ${i<a.length-1 ? '<div style="width:22px;text-align:center;font-size:14px;color:var(--red);flex-shrink:0">→</div>' : ''}
+        </div>`).join('')}
+    </div>
+  </div>
+
+  <!-- Critical Findings -->
+  <div style="margin-bottom:18px">
+    <div style="font-family:var(--mono);font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:var(--red);margin-bottom:10px;border-bottom:1px solid var(--border);padding-bottom:6px">🚨 严重漏洞详情（需立即处理）</div>
+
+    <div style="border:1px solid rgba(248,81,73,0.3);border-left:4px solid var(--red);border-radius:6px;padding:14px;margin-bottom:10px;background:rgba(248,81,73,0.04)">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <span style="font-family:var(--mono);font-size:8px;padding:2px 8px;border-radius:3px;background:var(--red-l);color:var(--red);border:1px solid rgba(248,81,73,0.3)">CRITICAL</span>
+        <span style="font-size:13px;font-weight:600;color:var(--ink)">SQL Injection — /api/v1/users</span>
+        <span style="margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--red)">CVSS 9.8</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:10.5px;color:var(--ink2)">
+        <div><span style="color:var(--ink3);font-family:var(--mono);font-size:8px">ENDPOINT</span><br>/api/v1/users?id=1</div>
+        <div><span style="color:var(--ink3);font-family:var(--mono);font-size:8px">TYPE</span><br>Error-based, Union-based</div>
+        <div><span style="color:var(--ink3);font-family:var(--mono);font-size:8px">IMPACT</span><br>Complete DB read/write</div>
+        <div><span style="color:var(--ink3);font-family:var(--mono);font-size:8px">TABLES</span><br>users, sessions, payments</div>
+      </div>
+      <div style="margin-top:8px;padding:8px 10px;background:#070a0f;border-radius:4px;font-family:var(--mono);font-size:10px;color:var(--green)">
+        <div style="color:var(--ink3);margin-bottom:4px"># PoC Payload</div>
+        <div>GET /api/v1/users?id=1<span style="color:var(--red)">'OR'1'='1</span> HTTP/1.1</div>
+        <div style="color:var(--amber)">→ Returns all 45,231 user records</div>
+      </div>
+      <div style="margin-top:8px;font-size:10.5px;color:var(--ink3)">🔧 修复：迁移至 Prepared Statements；部署 WAF 规则；最小权限 DB 账号</div>
+    </div>
+
+    <div style="border:1px solid rgba(248,81,73,0.3);border-left:4px solid var(--red);border-radius:6px;padding:14px;margin-bottom:10px;background:rgba(248,81,73,0.04)">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <span style="font-family:var(--mono);font-size:8px;padding:2px 8px;border-radius:3px;background:var(--red-l);color:var(--red);border:1px solid rgba(248,81,73,0.3)">CRITICAL</span>
+        <span style="font-size:13px;font-weight:600;color:var(--ink)">JWT alg:none Auth Bypass</span>
+        <span style="margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--red)">CVSS 9.1</span>
+      </div>
+      <div style="padding:8px 10px;background:#070a0f;border-radius:4px;font-family:var(--mono);font-size:10px;color:var(--green);margin-bottom:8px">
+        <div style="color:var(--ink3);margin-bottom:4px"># Forged Token</div>
+        <div><span style="color:var(--amber)">Header:</span> {"alg":"none","typ":"JWT"}</div>
+        <div><span style="color:var(--amber)">Payload:</span> {"sub":"admin","role":"superadmin"}</div>
+        <div style="color:var(--red)">→ Admin panel fully accessible</div>
+      </div>
+      <div style="font-size:10.5px;color:var(--ink3)">🔧 修复：服务端强制白名单验证 alg；禁止 none/HS256；引入 JWK 轮换</div>
+    </div>
+
+    <div style="border:1px solid rgba(248,81,73,0.3);border-left:4px solid var(--red);border-radius:6px;padding:14px;margin-bottom:10px;background:rgba(248,81,73,0.04)">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+        <span style="font-family:var(--mono);font-size:8px;padding:2px 8px;border-radius:3px;background:var(--red-l);color:var(--red);border:1px solid rgba(248,81,73,0.3)">CRITICAL</span>
+        <span style="font-size:13px;font-weight:600;color:var(--ink)">Redis 6379 未授权访问</span>
+        <span style="margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--red)">CVSS 9.0</span>
+      </div>
+      <div style="font-size:10.5px;color:var(--ink2)">Redis 无认证对外暴露，可读取所有 Session 数据实现账号劫持，FLUSHALL 可清空生产数据。</div>
+      <div style="font-size:10.5px;color:var(--ink3);margin-top:6px">🔧 修复：绑定 127.0.0.1；requirepass 强密码；ACL 最小权限；VPC 安全组限制</div>
+    </div>
+  </div>
+
+  <!-- High/Medium table -->
+  <div style="margin-bottom:18px">
+    <div style="font-family:var(--mono);font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:var(--amber);margin-bottom:10px;border-bottom:1px solid var(--border);padding-bottom:6px">⚠ 高危 / 中危漏洞汇总</div>
+    <table style="width:100%;border-collapse:collapse;font-size:10.5px">
+      <thead><tr style="background:var(--bg3)">
+        ${['漏洞','位置','CVSS','影响','修复优先级'].map(h => `<th style="padding:7px 10px;text-align:left;font-family:var(--mono);font-size:8px;color:var(--ink3);letter-spacing:0.08em;text-transform:uppercase;border-bottom:1.5px solid var(--border)">${h}</th>`).join('')}
+      </tr></thead>
+      <tbody>
+        ${[
+          ['IDOR — 订单遍历','/api/v1/orders/{id}','8.1','所有用户订单暴露','P1 · 1周'],
+          ['SSRF — 图片上传','/api/image-upload','8.5','内网元数据访问','P1 · 1周'],
+          ['.env 文件暴露','/.env','7.5','DB密码/API Key泄露','P0 · 立即'],
+          ['Reflected XSS','?q= 参数','7.2','会话劫持/钓鱼','P2 · 2周'],
+          ['Stored XSS','用户简介字段','6.8','持久化脚本注入','P2 · 2周'],
+          ['目录遍历','/backup.tar.gz','6.5','源码备份暴露','P1 · 3天'],
+          ['CSRF — 账户更新','/api/v1/account','5.4','跨站请求伪造','P2 · 2周'],
+          ['TLS 1.0/1.1 启用','所有 HTTPS 端点','4.8','中间人降级攻击','P3 · 1月'],
+        ].map((r,i) => `<tr style="background:${i%2?'var(--bg3)':'var(--bg2)'}">
+          <td style="padding:7px 10px;color:var(--ink);font-weight:500;border-bottom:1px solid var(--border)">${r[0]}</td>
+          <td style="padding:7px 10px;font-family:var(--mono);font-size:9px;color:var(--ink3);border-bottom:1px solid var(--border)">${r[1]}</td>
+          <td style="padding:7px 10px;font-family:var(--mono);font-size:10px;color:${parseFloat(r[2])>=8?'var(--red)':parseFloat(r[2])>=6?'var(--amber)':'var(--blue)'};border-bottom:1px solid var(--border);font-weight:600">${r[2]}</td>
+          <td style="padding:7px 10px;color:var(--ink2);border-bottom:1px solid var(--border)">${r[3]}</td>
+          <td style="padding:7px 10px;font-family:var(--mono);font-size:9px;color:${r[4].includes('立即')?'var(--red)':r[4].includes('P1')?'var(--amber)':'var(--blue)'};border-bottom:1px solid var(--border)">${r[4]}</td>
+        </tr>`).join('')}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- OSINT -->
+  <div>
+    <div style="font-family:var(--mono);font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:var(--purple);margin-bottom:10px;border-bottom:1px solid var(--border);padding-bottom:6px">🕵️ 情报收集成果</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      ${[
+        ['子域名','12个','dev/staging/api 对外暴露','var(--amber)'],
+        ['暴露邮箱','15个','admin@/devops@/security@','var(--red)'],
+        ['GitHub Dorking','3条','含历史 AWS Key','var(--red)'],
+        ['Shodan 结果','7服务','2个含已知 CVE','var(--amber)'],
+        ['LinkedIn 员工','34人','技术栈已识别','var(--ink3)'],
+        ['暗网提及','2条','近90天威胁论坛','var(--purple)'],
+      ].map(r => `<div style="padding:9px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);display:flex;gap:10px;align-items:center">
+        <div style="flex:1">
+          <div style="font-size:11px;font-weight:600;color:var(--ink)">${r[0]}</div>
+          <div style="font-size:10px;color:var(--ink3);margin-top:1px">${r[2]}</div>
+        </div>
+        <div style="font-family:var(--serif);font-size:18px;color:${r[3]}">${r[1]}</div>
+      </div>`).join('')}
+    </div>
+  </div>
+</div>`;
+}
+
+function buildGRCReport() {
+  var findings = [
+    {id:'F-001',title:'PAN 数据明文存储',std:'PCI-DSS Req 3.4',sev:'Critical',deadline:'7天',owner:'Dev Lead',status:'未修复',iso:'A.8.2',owasp:'A02',nist:'PR.DS-1'},
+    {id:'F-002',title:'MySQL 公网端口开放',std:'PCI-DSS Req 1.3',sev:'Critical',deadline:'7天',owner:'IT Ops',status:'未修复',iso:'A.13.1',owasp:'A05',nist:'PR.AC-5'},
+    {id:'F-003',title:'JWT 身份验证绕过',std:'OWASP A07',sev:'Critical',deadline:'3天',owner:'Backend Dev',status:'未修复',iso:'A.9.4',owasp:'A07',nist:'PR.AC-3'},
+    {id:'F-004',title:'无正式访问审查流程',std:'ISO 27001 A.9.2',sev:'High',deadline:'30天',owner:'CISO',status:'进行中',iso:'A.9.2',owasp:'A01',nist:'PR.AC-1'},
+    {id:'F-005',title:'DPIA 缺失',std:'GDPR Art.35',sev:'High',deadline:'30天',owner:'DPO',status:'未修复',iso:'A.18.1',owasp:'-',nist:'ID.GV-3'},
+    {id:'F-006',title:'MySQL 未修补 CVE',std:'PCI-DSS Req 6.3',sev:'High',deadline:'14天',owner:'IT Ops',status:'计划中',iso:'A.12.6',owasp:'A06',nist:'ID.RA-1'},
+    {id:'F-007',title:'密码复杂度策略缺失',std:'OWASP ASVS V2.1',sev:'Medium',deadline:'14天',owner:'Dev Lead',status:'未修复',iso:'A.9.3',owasp:'A07',nist:'PR.AC-7'},
+    {id:'F-008',title:'信息传输策略未文档化',std:'ISO 27001 A.5.14',sev:'Medium',deadline:'45天',owner:'GRC Team',status:'未修复',iso:'A.5.14',owasp:'-',nist:'PR.DS-2'},
+  ];
+
+  var sevColor = {Critical:'var(--red)',High:'var(--amber)',Medium:'var(--blue)',Low:'var(--ink3)'};
+  var statusColor = {'未修复':'var(--red)','进行中':'var(--amber)','计划中':'var(--blue)','已修复':'var(--green)'};
+
+  return `
+<div style="font-family:var(--sans)">
+  <!-- Summary badges -->
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px">
+    ${[['3','Critical 不符','var(--red)'],['3','High 缺口','var(--amber)'],['2','Medium 偏差','var(--blue)'],['3','标准覆盖','var(--green)']].map(r =>
+      `<div style="padding:12px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);text-align:center">
+        <div style="font-family:var(--serif);font-size:24px;color:${r[2]};line-height:1">${r[0]}</div>
+        <div style="font-family:var(--mono);font-size:8px;color:var(--ink3);text-transform:uppercase;letter-spacing:0.08em;margin-top:3px">${r[1]}</div>
+      </div>`).join('')}
+  </div>
+
+  <!-- Standard coverage -->
+  <div style="margin-bottom:20px">
+    <div style="font-family:var(--mono);font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:var(--green);margin-bottom:10px;border-bottom:1px solid var(--border);padding-bottom:6px">📋 合规标准覆盖率</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      ${[
+        ['PCI-DSS v4.0','3/12 控制项通过','25%','var(--red)'],
+        ['ISO 27001:2022','8/14 条款通过','57%','var(--amber)'],
+        ['OWASP ASVS L2','4/10 验证通过','40%','var(--amber)'],
+        ['GDPR','2/7 要求符合','28%','var(--red)'],
+        ['NIST CSF','6/10 功能达标','60%','var(--amber)'],
+        ['OWASP Top 10','4/10 控制有效','40%','var(--amber)'],
+      ].map(r => `<div style="padding:10px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r)">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <div style="font-size:11px;font-weight:600;color:var(--ink)">${r[0]}</div>
+          <div style="font-family:var(--mono);font-size:10px;color:${r[3]}">${r[2]}</div>
+        </div>
+        <div style="height:4px;background:var(--bg4);border-radius:2px;overflow:hidden">
+          <div style="height:100%;width:${r[2]};background:${r[3]};border-radius:2px"></div>
+        </div>
+        <div style="font-size:9px;color:var(--ink3);margin-top:4px">${r[1]}</div>
+      </div>`).join('')}
+    </div>
+  </div>
+
+  <!-- Findings table with timeline -->
+  <div style="margin-bottom:18px">
+    <div style="font-family:var(--mono);font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:var(--blue);margin-bottom:10px;border-bottom:1px solid var(--border);padding-bottom:6px">📊 发现清单 · 修复时间表</div>
+    <div style="overflow-x:auto">
+    <table style="width:100%;border-collapse:collapse;font-size:10px;min-width:600px">
+      <thead><tr style="background:var(--bg3)">
+        ${['ID','发现','严重性','修复期限','责任人','状态','ISO','OWASP','NIST'].map(h =>
+          `<th style="padding:6px 8px;text-align:left;font-family:var(--mono);font-size:7.5px;color:var(--ink3);letter-spacing:0.08em;text-transform:uppercase;border-bottom:1.5px solid var(--border);white-space:nowrap">${h}</th>`).join('')}
+      </tr></thead>
+      <tbody>
+        ${findings.map((f,i) => `<tr style="background:${i%2?'var(--bg3)':'var(--bg2)'}">
+          <td style="padding:6px 8px;font-family:var(--mono);font-size:9px;color:var(--ink3);border-bottom:1px solid var(--border)">${f.id}</td>
+          <td style="padding:6px 8px;font-weight:500;color:var(--ink);border-bottom:1px solid var(--border);max-width:160px">${f.title}</td>
+          <td style="padding:6px 8px;border-bottom:1px solid var(--border)"><span style="font-family:var(--mono);font-size:8px;padding:1px 6px;border-radius:3px;background:${sevColor[f.sev]}22;color:${sevColor[f.sev]};border:1px solid ${sevColor[f.sev]}44">${f.sev}</span></td>
+          <td style="padding:6px 8px;font-family:var(--mono);font-size:9px;color:${f.sev==='Critical'?'var(--red)':'var(--amber)'};border-bottom:1px solid var(--border);white-space:nowrap">${f.deadline}</td>
+          <td style="padding:6px 8px;font-size:10px;color:var(--ink2);border-bottom:1px solid var(--border)">${f.owner}</td>
+          <td style="padding:6px 8px;border-bottom:1px solid var(--border)"><span style="font-family:var(--mono);font-size:8px;color:${statusColor[f.status]}">${f.status}</span></td>
+          <td style="padding:6px 8px;font-family:var(--mono);font-size:8px;color:var(--ink3);border-bottom:1px solid var(--border)">${f.iso}</td>
+          <td style="padding:6px 8px;font-family:var(--mono);font-size:8px;color:var(--ink3);border-bottom:1px solid var(--border)">${f.owasp}</td>
+          <td style="padding:6px 8px;font-family:var(--mono);font-size:8px;color:var(--ink3);border-bottom:1px solid var(--border)">${f.nist}</td>
+        </tr>`).join('')}
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <!-- Remediation timeline visual -->
+  <div>
+    <div style="font-family:var(--mono);font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:var(--purple);margin-bottom:10px;border-bottom:1px solid var(--border);padding-bottom:6px">📅 修复时间线</div>
+    ${[
+      ['立即 (0-3天)','var(--red)','F-003 JWT修复','F-005 .env 删除'],
+      ['本周 (0-7天)','var(--red)','F-001 PAN加密','F-002 DB网络隔离'],
+      ['2周内','var(--amber)','F-006 补丁更新','F-007 密码策略'],
+      ['1个月','var(--amber)','F-004 访问审查流程','F-005 DPIA评估'],
+      ['季度','var(--blue)','F-008 传输策略文档','下次全面评估'],
+    ].map(r => `<div style="display:flex;gap:12px;align-items:flex-start;margin-bottom:8px">
+      <div style="min-width:80px;font-family:var(--mono);font-size:8.5px;color:${r[1]};padding-top:8px;text-align:right;letter-spacing:0.04em">${r[0]}</div>
+      <div style="width:8px;flex-shrink:0;padding-top:9px"><div style="width:8px;height:8px;border-radius:50%;background:${r[1]}"></div></div>
+      <div style="flex:1;display:flex;gap:6px;flex-wrap:wrap">
+        ${r.slice(2).map(item => `<div style="padding:5px 10px;background:${r[1]}11;border:1px solid ${r[1]}33;border-radius:4px;font-size:10px;color:var(--ink2)">${item}</div>`).join('')}
+      </div>
+    </div>`).join('')}
+  </div>
+</div>`;
+}
+
+function buildArchReport() {
+  return `
+<div style="font-family:var(--sans)">
+  <!-- Rich Picture Diagram (SVG) -->
+  <div style="margin-bottom:20px">
+    <div style="font-family:var(--mono);font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:var(--teal);margin-bottom:10px;border-bottom:1px solid var(--border);padding-bottom:6px">🗺 系统安全架构 Rich Picture</div>
+    <div style="background:#070a0f;border:1px solid var(--border);border-radius:8px;padding:12px;overflow-x:auto">
+      <svg viewBox="0 0 680 360" xmlns="http://www.w3.org/2000/svg" style="width:100%;min-width:500px;font-family:'IBM Plex Mono',monospace">
+        <defs>
+          <marker id="arr" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#6e7681"/>
+          </marker>
+          <marker id="arr-r" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#f85149"/>
+          </marker>
+          <marker id="arr-g" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#3fb950"/>
+          </marker>
+        </defs>
+
+        <!-- Internet zone -->
+        <rect x="8" y="8" width="120" height="344" rx="8" fill="rgba(248,81,73,0.04)" stroke="rgba(248,81,73,0.3)" stroke-width="1.5" stroke-dasharray="6,3"/>
+        <text x="68" y="24" text-anchor="middle" fill="#f85149" font-size="9" letter-spacing="1">INTERNET</text>
+        <!-- Attacker -->
+        <rect x="20" y="40" width="96" height="44" rx="6" fill="rgba(248,81,73,0.12)" stroke="rgba(248,81,73,0.4)" stroke-width="1"/>
+        <text x="68" y="59" text-anchor="middle" fill="#f85149" font-size="11">💀</text>
+        <text x="68" y="74" text-anchor="middle" fill="#f85149" font-size="8">Attacker</text>
+        <!-- User -->
+        <rect x="20" y="100" width="96" height="44" rx="6" fill="rgba(56,139,253,0.08)" stroke="rgba(56,139,253,0.3)" stroke-width="1"/>
+        <text x="68" y="119" text-anchor="middle" fill="#388bfd" font-size="11">👤</text>
+        <text x="68" y="134" text-anchor="middle" fill="#388bfd" font-size="8">User</text>
+
+        <!-- ⚠ NO DMZ label -->
+        <rect x="138" y="80" width="72" height="28" rx="4" fill="rgba(248,81,73,0.15)" stroke="rgba(248,81,73,0.5)" stroke-width="1"/>
+        <text x="174" y="93" text-anchor="middle" fill="#f85149" font-size="8">⚠ NO DMZ</text>
+        <text x="174" y="103" text-anchor="middle" fill="#f85149" font-size="7">Missing!</text>
+
+        <!-- DMZ Zone (should exist) -->
+        <rect x="136" y="8" width="160" height="344" rx="8" fill="rgba(56,139,253,0.03)" stroke="rgba(56,139,253,0.15)" stroke-width="1" stroke-dasharray="4,4"/>
+        <text x="216" y="24" text-anchor="middle" fill="#388bfd55" font-size="9" letter-spacing="1">WEB TIER</text>
+
+        <!-- Load Balancer -->
+        <rect x="152" y="120" width="128" height="40" rx="6" fill="rgba(56,139,253,0.1)" stroke="rgba(56,139,253,0.35)" stroke-width="1.5"/>
+        <text x="216" y="137" text-anchor="middle" fill="#58a6ff" font-size="9">⚖ Load Balancer</text>
+        <text x="216" y="152" text-anchor="middle" fill="#6e7681" font-size="8">nginx/1.24 :80/:443</text>
+
+        <!-- Web App -->
+        <rect x="152" y="180" width="128" height="44" rx="6" fill="rgba(56,139,253,0.1)" stroke="rgba(56,139,253,0.35)" stroke-width="1.5"/>
+        <text x="216" y="198" text-anchor="middle" fill="#58a6ff" font-size="9">🌐 Web App</text>
+        <text x="216" y="212" text-anchor="middle" fill="#6e7681" font-size="8">Tomcat :8080</text>
+        <text x="216" y="222" text-anchor="middle" fill="#f85149" font-size="7">⚠ Swagger exposed</text>
+
+        <!-- API -->
+        <rect x="152" y="244" width="128" height="44" rx="6" fill="rgba(56,139,253,0.08)" stroke="rgba(56,139,253,0.25)" stroke-width="1"/>
+        <text x="216" y="262" text-anchor="middle" fill="#58a6ff" font-size="9">🔌 API Server</text>
+        <text x="216" y="276" text-anchor="middle" fill="#f85149" font-size="7">⚠ No API Gateway</text>
+        <text x="216" y="288" text-anchor="middle" fill="#f85149" font-size="7">⚠ SQLi /users</text>
+
+        <!-- App/Data Zone -->
+        <rect x="316" y="8" width="160" height="344" rx="8" fill="rgba(63,185,80,0.03)" stroke="rgba(63,185,80,0.15)" stroke-width="1" stroke-dasharray="4,4"/>
+        <text x="396" y="24" text-anchor="middle" fill="#3fb95055" font-size="9" letter-spacing="1">DATA TIER</text>
+
+        <!-- MySQL -->
+        <rect x="330" y="100" width="128" height="48" rx="6" fill="rgba(248,81,73,0.1)" stroke="rgba(248,81,73,0.4)" stroke-width="1.5"/>
+        <text x="394" y="120" text-anchor="middle" fill="#f85149" font-size="9">🗄 MySQL :3306</text>
+        <text x="394" y="135" text-anchor="middle" fill="#f85149" font-size="7">⚠ EXPOSED TO INTERNET</text>
+        <text x="394" y="145" text-anchor="middle" fill="#f85149" font-size="7">⚠ SQLi confirmed</text>
+
+        <!-- Redis -->
+        <rect x="330" y="168" width="128" height="44" rx="6" fill="rgba(248,81,73,0.1)" stroke="rgba(248,81,73,0.4)" stroke-width="1.5"/>
+        <text x="394" y="186" text-anchor="middle" fill="#f85149" font-size="9">⚡ Redis :6379</text>
+        <text x="394" y="200" text-anchor="middle" fill="#f85149" font-size="7">⚠ NO AUTH REQUIRED</text>
+        <text x="394" y="210" text-anchor="middle" fill="#f85149" font-size="7">⚠ Public exposed</text>
+
+        <!-- S3 -->
+        <rect x="330" y="232" width="128" height="44" rx="6" fill="rgba(248,81,73,0.08)" stroke="rgba(248,81,73,0.35)" stroke-width="1"/>
+        <text x="394" y="250" text-anchor="middle" fill="#d29922" font-size="9">☁ S3 Bucket</text>
+        <text x="394" y="265" text-anchor="middle" fill="#f85149" font-size="7">⚠ PUBLIC READ</text>
+        <text x="394" y="275" text-anchor="middle" fill="#f85149" font-size="7">customer_data exposed</text>
+
+        <!-- Cloud Zone -->
+        <rect x="496" y="8" width="176" height="344" rx="8" fill="rgba(188,140,255,0.03)" stroke="rgba(188,140,255,0.15)" stroke-width="1" stroke-dasharray="4,4"/>
+        <text x="584" y="24" text-anchor="middle" fill="#bc8cff55" font-size="9" letter-spacing="1">CLOUD / IAM</text>
+
+        <!-- IAM -->
+        <rect x="510" y="60" width="148" height="44" rx="6" fill="rgba(188,140,255,0.08)" stroke="rgba(188,140,255,0.3)" stroke-width="1"/>
+        <text x="584" y="78" text-anchor="middle" fill="#bc8cff" font-size="9">🔐 AWS IAM</text>
+        <text x="584" y="93" text-anchor="middle" fill="#d29922" font-size="7">⚠ Over-privileged role</text>
+        <text x="584" y="103" text-anchor="middle" fill="#d29922" font-size="7">lambda-exec: s3:*</text>
+
+        <!-- Monitoring -->
+        <rect x="510" y="124" width="148" height="44" rx="6" fill="rgba(56,139,253,0.06)" stroke="rgba(56,139,253,0.2)" stroke-width="1"/>
+        <text x="584" y="142" text-anchor="middle" fill="#388bfd" font-size="9">📡 Monitoring</text>
+        <text x="584" y="157" text-anchor="middle" fill="#6e7681" font-size="7">Langfuse · Grafana</text>
+
+        <!-- Recommended WAF (dashed) -->
+        <rect x="510" y="188" width="148" height="44" rx="6" fill="none" stroke="#3fb950" stroke-width="1.5" stroke-dasharray="5,3"/>
+        <text x="584" y="206" text-anchor="middle" fill="#3fb950" font-size="9">🛡 WAF (Recommended)</text>
+        <text x="584" y="220" text-anchor="middle" fill="#3fb950" font-size="7">Not yet deployed</text>
+
+        <!-- Recommended API GW -->
+        <rect x="510" y="252" width="148" height="44" rx="6" fill="none" stroke="#3fb950" stroke-width="1.5" stroke-dasharray="5,3"/>
+        <text x="584" y="270" text-anchor="middle" fill="#3fb950" font-size="9">⚙ API Gateway (Rec.)</text>
+        <text x="584" y="284" text-anchor="middle" fill="#3fb950" font-size="7">Kong / AWS APIGW</text>
+
+        <!-- Attack arrows -->
+        <line x1="116" y1="62" x2="148" y2="130" stroke="#f85149" stroke-width="1.5" stroke-dasharray="4,2" marker-end="url(#arr-r)"/>
+        <text x="122" y="92" fill="#f85149" font-size="7" transform="rotate(-35,122,92)">SQLi attack</text>
+
+        <line x1="116" y1="68" x2="328" y2="115" stroke="#f85149" stroke-width="1" stroke-dasharray="3,2" marker-end="url(#arr-r)"/>
+        <text x="190" y="75" fill="#f85149" font-size="7">Direct DB access ⚠</text>
+
+        <line x1="116" y1="72" x2="328" y2="182" stroke="#f85149" stroke-width="1" stroke-dasharray="3,2" marker-end="url(#arr-r)"/>
+        <text x="195" y="120" fill="#f85149" font-size="7">Redis no-auth ⚠</text>
+
+        <!-- Normal traffic -->
+        <line x1="116" y1="120" x2="150" y2="135" stroke="#388bfd" stroke-width="1.5" marker-end="url(#arr-g)"/>
+
+        <!-- Internal connections -->
+        <line x1="280" y1="200" x2="328" y2="124" stroke="#6e7681" stroke-width="1" marker-end="url(#arr)"/>
+        <line x1="280" y1="260" x2="328" y2="188" stroke="#6e7681" stroke-width="1" marker-end="url(#arr)"/>
+        <line x1="458" y1="130" x2="508" y2="82" stroke="#6e7681" stroke-width="1" marker-end="url(--arr)"/>
+
+        <!-- Legend -->
+        <rect x="8" y="310" width="120" height="42" rx="4" fill="rgba(0,0,0,0.3)" stroke="#30363d" stroke-width="1"/>
+        <text x="14" y="322" fill="#6e7681" font-size="8">Legend:</text>
+        <line x1="14" y1="330" x2="34" y2="330" stroke="#f85149" stroke-width="1.5" stroke-dasharray="3,2"/>
+        <text x="37" y="333" fill="#f85149" font-size="7">Attack path</text>
+        <line x1="14" y1="344" x2="34" y2="344" stroke="#3fb950" stroke-width="1.5" stroke-dasharray="5,3"/>
+        <text x="37" y="347" fill="#3fb950" font-size="7">Recommended (missing)</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- STRIDE table -->
+  <div style="margin-bottom:18px">
+    <div style="font-family:var(--mono);font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:var(--teal);margin-bottom:10px;border-bottom:1px solid var(--border);padding-bottom:6px">🎯 STRIDE 威胁建模</div>
+    <table style="width:100%;border-collapse:collapse;font-size:10.5px">
+      <thead><tr style="background:var(--bg3)">
+        ${['威胁类型','具体威胁','受影响组件','风险等级','缓解措施'].map(h =>
+          `<th style="padding:7px 10px;text-align:left;font-family:var(--mono);font-size:8px;color:var(--ink3);letter-spacing:0.08em;text-transform:uppercase;border-bottom:1.5px solid var(--border)">${h}</th>`).join('')}
+      </tr></thead>
+      <tbody>
+        ${[
+          ['Spoofing','JWT alg:none 身份伪造','Auth Service','Critical','强制 alg 白名单验证'],
+          ['Tampering','API 无签名可篡改请求','Order API','High','引入 HMAC 请求签名'],
+          ['Repudiation','无完整审计日志','所有端点','High','集中式审计日志 (SIEM)'],
+          ['Info Disclosure','.env / Swagger 暴露','Web Server','High','移除配置文件；保护文档端点'],
+          ['Denial of Service','无限流机制','API Gateway','Medium','API Gateway + Rate Limiting'],
+          ['Privilege Escalation','IDOR + 无 RBAC','Order/User API','High','对象级权限验证 (BOLA)'],
+        ].map((r,i) => `<tr style="background:${i%2?'var(--bg3)':'var(--bg2)'}">
+          <td style="padding:7px 10px;font-family:var(--mono);font-size:9px;color:var(--purple);border-bottom:1px solid var(--border)">${r[0]}</td>
+          <td style="padding:7px 10px;color:var(--ink);font-weight:500;border-bottom:1px solid var(--border)">${r[1]}</td>
+          <td style="padding:7px 10px;font-family:var(--mono);font-size:9px;color:var(--ink3);border-bottom:1px solid var(--border)">${r[2]}</td>
+          <td style="padding:7px 10px;border-bottom:1px solid var(--border)"><span style="font-family:var(--mono);font-size:8px;color:${r[3]==='Critical'?'var(--red)':r[3]==='High'?'var(--amber)':'var(--blue)'}">${r[3]}</span></td>
+          <td style="padding:7px 10px;color:var(--ink2);border-bottom:1px solid var(--border)">${r[4]}</td>
+        </tr>`).join('')}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Zero Trust Roadmap -->
+  <div>
+    <div style="font-family:var(--mono);font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:var(--green);margin-bottom:10px;border-bottom:1px solid var(--border);padding-bottom:6px">🛡 零信任架构改进路线</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      ${[
+        ['🔴','立即','网络分段','引入 DMZ，Web/App/DB 三层隔离'],
+        ['🔴','立即','移除 .env','迁移至 Secrets Manager / Vault'],
+        ['🟡','2周','API Gateway','部署 Kong，集中认证/限流/日志'],
+        ['🟡','2周','mTLS','服务间通信引入双向 TLS'],
+        ['🟢','1月','WAF 部署','AWS WAF / Cloudflare，防御 SQLi/XSS'],
+        ['🟢','1月','Zero Trust','所有内网流量需认证，微隔离'],
+      ].map(r => `<div style="display:flex;gap:10px;align-items:center;padding:9px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r)">
+        <div style="font-size:16px;flex-shrink:0">${r[0]}</div>
+        <div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <span style="font-size:11px;font-weight:600;color:var(--ink)">${r[2]}</span>
+            <span style="font-family:var(--mono);font-size:7.5px;color:var(--ink3)">${r[1]}</span>
+          </div>
+          <div style="font-size:10px;color:var(--ink3);margin-top:2px">${r[3]}</div>
+        </div>
+      </div>`).join('')}
+    </div>
+  </div>
+</div>`;
+}
+
+function buildOrchestratorReport() {
+  return `
+<div style="font-family:var(--sans)">
+  <!-- Executive header -->
+  <div style="padding:18px 20px;background:linear-gradient(135deg,rgba(56,139,253,0.08),var(--bg3));border:1px solid rgba(56,139,253,0.2);border-radius:8px;margin-bottom:20px">
+    <div style="font-family:var(--mono);font-size:8px;letter-spacing:0.14em;text-transform:uppercase;color:var(--green);margin-bottom:6px;display:flex;align-items:center;gap:6px">
+      <span style="width:6px;height:6px;border-radius:50%;background:var(--green);display:inline-block"></span>
+      Hy-AGI Platform · BIT-CIS Team · 执行完成
+    </div>
+    <div style="font-family:var(--serif);font-size:22px;color:var(--ink);margin-bottom:4px">综合安全评估报告</div>
+    <div style="display:flex;gap:16px;font-family:var(--mono);font-size:9px;color:var(--ink3);flex-wrap:wrap">
+      <span>目标: example-corp.com</span>
+      <span>执行时长: 4h 23m</span>
+      <span>总成本: $1.87</span>
+      <span>覆盖率: 97%</span>
+      <span>Agents: 7</span>
+    </div>
+  </div>
+
+  <!-- KPI row -->
+  <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:20px">
+    ${[['4','Critical','var(--red)'],['10','High','var(--amber)'],['9','Medium','var(--blue)'],['5','Low','var(--ink3)'],['8','合规缺口','var(--purple)'],['97%','覆盖率','var(--green)']].map(r =>
+      `<div style="padding:10px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);text-align:center">
+        <div style="font-family:var(--serif);font-size:20px;color:${r[2]};line-height:1">${r[0]}</div>
+        <div style="font-family:var(--mono);font-size:7.5px;color:var(--ink3);text-transform:uppercase;letter-spacing:0.07em;margin-top:3px">${r[1]}</div>
+      </div>`).join('')}
+  </div>
+
+  <!-- Agent contribution -->
+  <div style="margin-bottom:20px">
+    <div style="font-family:var(--mono);font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:var(--blue);margin-bottom:10px;border-bottom:1px solid var(--border);padding-bottom:6px">🤖 各 Agent 贡献汇总</div>
+    <table style="width:100%;border-collapse:collapse;font-size:10.5px">
+      <thead><tr style="background:var(--bg3)">
+        ${['Agent','职责','发现数','严重','成本','耗时','质量'].map(h =>
+          `<th style="padding:7px 10px;text-align:left;font-family:var(--mono);font-size:8px;color:var(--ink3);letter-spacing:0.08em;border-bottom:1.5px solid var(--border)">${h}</th>`).join('')}
+      </tr></thead>
+      <tbody>
+        ${[
+          ['Sr. Pentester','深度渗透·漏洞利用','8','3','$0.62','1h 12m','★★★★★'],
+          ['Jr. Pentester','广度扫描·OSINT','6','0','$0.28','0h 48m','★★★★☆'],
+          ['GRC Agent','合规核查','8','3','$0.35','1h 05m','★★★★★'],
+          ['Sec. Architect','威胁建模','5','2','$0.42','0h 55m','★★★★★'],
+          ['Reviewer','交叉验证','−1','0','$0.12','0h 18m','★★★★★'],
+          ['Reporter','报告生成','—','—','$0.08','0h 05m','★★★★☆'],
+        ].map((r,i) => `<tr style="background:${i%2?'var(--bg3)':'var(--bg2)'}">
+          ${r.map((v,j) => `<td style="padding:7px 10px;${j===0?'font-weight:600;color:var(--ink)':j===6?'color:var(--amber)':'color:var(--ink2)'};border-bottom:1px solid var(--border);font-size:${j===0?'11':'10'}px">${v}</td>`).join('')}
+        </tr>`).join('')}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Top risks -->
+  <div style="margin-bottom:20px">
+    <div style="font-family:var(--mono);font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:var(--red);margin-bottom:10px;border-bottom:1px solid var(--border);padding-bottom:6px">🚨 TOP 5 高危风险（按业务影响排序）</div>
+    ${[
+      ['1','SQL Injection (CVSS 9.8)','数据库完整泄露，45,231 用户记录，含支付信息','立即','Dev Team'],
+      ['2','Redis 未授权访问 (CVSS 9.0)','会话劫持，全量用户账号接管风险','立即','IT Ops'],
+      ['3','JWT alg:none (CVSS 9.1)','管理员权限绕过，后台数据完整暴露','立即','Backend Dev'],
+      ['4','S3 公开存储桶 (CVSS 9.6)','customer_data_2025.csv 公开，GDPR 违规','24小时','Cloud Ops'],
+      ['5','PAN 数据明文 (PCI-DSS)','信用卡号明文存储，直接违反 PCI-DSS Req 3.4','7天','Dev Lead'],
+    ].map(r => `<div style="display:flex;gap:12px;align-items:flex-start;padding:10px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);margin-bottom:7px">
+      <div style="font-family:var(--serif);font-size:22px;color:var(--red);min-width:28px;line-height:1;padding-top:2px">${r[0]}</div>
+      <div style="flex:1">
+        <div style="font-size:12px;font-weight:600;color:var(--ink);margin-bottom:3px">${r[1]}</div>
+        <div style="font-size:10.5px;color:var(--ink3);line-height:1.5">${r[2]}</div>
+      </div>
+      <div style="text-align:right;flex-shrink:0">
+        <div style="font-family:var(--mono);font-size:9px;color:var(--red);margin-bottom:3px">${r[3]}</div>
+        <div style="font-size:10px;color:var(--ink3)">${r[4]}</div>
+      </div>
+    </div>`).join('')}
+  </div>
+
+  <!-- Cost vs Traditional -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px">
+    <div style="padding:14px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r)">
+      <div style="font-family:var(--mono);font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--blue);margin-bottom:10px">💰 成本对比</div>
+      ${[['AI 运营成本','$1.87','var(--green)'],['传统人力成本','$2,800','var(--red)'],['节省金额','$2,798.13','var(--green)'],['节省比例','99.9%','var(--green)']].map(r =>
+        `<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border)">
+          <span style="font-size:11px;color:var(--ink3)">${r[0]}</span>
+          <span style="font-family:var(--mono);font-size:12px;color:${r[2]};font-weight:500">${r[1]}</span>
+        </div>`).join('')}
+    </div>
+    <div style="padding:14px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r)">
+      <div style="font-family:var(--mono);font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--blue);margin-bottom:10px">⚡ 效率对比</div>
+      ${[['交付周期','14天 → 5天','↓64%'],['攻击场景','12 → 85个','↑608%'],['漏洞发现','~8 → 27个','↑238%'],['误报率','~18% → 3.6%','↓80%']].map(r =>
+        `<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border)">
+          <span style="font-size:11px;color:var(--ink3)">${r[0]}</span>
+          <div style="text-align:right">
+            <div style="font-size:10px;color:var(--ink)">${r[1]}</div>
+            <div style="font-family:var(--mono);font-size:9px;color:var(--green)">${r[2]}</div>
+          </div>
+        </div>`).join('')}
+    </div>
+  </div>
+
+  <!-- Next steps -->
+  <div>
+    <div style="font-family:var(--mono);font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:var(--green);margin-bottom:10px;border-bottom:1px solid var(--border);padding-bottom:6px">📅 立即可执行的下一步</div>
+    ${[
+      ['今天','Dev Team','修复 JWT alg:none 验证 · 删除 .env 文件 · Redis 绑定 127.0.0.1'],
+      ['本周','IT Ops + Dev','SQLi 迁移 Prepared Statements · PAN 数据加密 · 关闭 DB 公网端口'],
+      ['2周内','Cloud Ops','S3 Block Public Access · IAM 最小权限 · 修补 MySQL CVE'],
+      ['1个月','CISO + GRC','建立访问审查流程 · DPIA 评估 · WAF 部署 · API Gateway 上线'],
+      ['季度','全团队','90天复测 · 追加移动端测试 · ISO 27001 认证推进'],
+    ].map((r,i) => `<div style="display:flex;gap:12px;align-items:flex-start;margin-bottom:8px">
+      <div style="min-width:58px;text-align:right;font-family:var(--mono);font-size:9px;color:${['var(--red)','var(--red)','var(--amber)','var(--blue)','var(--green)'][i]};padding-top:8px">${r[0]}</div>
+      <div style="width:8px;flex-shrink:0;padding-top:9px"><div style="width:8px;height:8px;border-radius:50%;background:${['var(--red)','var(--red)','var(--amber)','var(--blue)','var(--green)'][i]}"></div></div>
+      <div style="flex:1;padding:8px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r)">
+        <div style="font-family:var(--mono);font-size:8.5px;color:var(--ink3);margin-bottom:3px">${r[1]}</div>
+        <div style="font-size:11px;color:var(--ink2)">${r[2]}</div>
+      </div>
+    </div>`).join('')}
+  </div>
+</div>`;
+}
+
+function openRoleReport(id) {
+  var r = ROLE_REPORTS[id];
+  if (!r) return;
+  document.getElementById('rrd-color').style.background = r.color;
+  document.getElementById('rrd-title').textContent = r.name;
+  document.getElementById('rrd-sub').textContent = r.sub;
+
+  var body = document.getElementById('rrd-body');
+  if (id === 'pentest')      body.innerHTML = buildPentestReport();
+  else if (id === 'grc')     body.innerHTML = buildGRCReport();
+  else if (id === 'architect') body.innerHTML = buildArchReport();
+  else if (id === 'orchestrator') body.innerHTML = buildOrchestratorReport();
+  else if (id === 'reviewer') body.innerHTML = buildReviewerReport();
+  else body.innerHTML = '<div style="color:var(--ink3);padding:20px">报告内容生成中...</div>';
+
+  document.getElementById('rr-detail-overlay').classList.add('show');
+}
+
+function buildReviewerReport() {
+  return `<div style="font-family:var(--sans)">
+    <div style="margin-bottom:18px">
+      <div style="font-family:var(--mono);font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:var(--green);margin-bottom:10px;border-bottom:1px solid var(--border);padding-bottom:6px">✅ 验证统计摘要</div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
+        ${[['28','输入发现','var(--blue)'],['1','移除误报','var(--amber)'],['27','验证通过','var(--green)'],['3.6%','误报率','var(--green)']].map(r =>
+          `<div style="padding:12px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);text-align:center">
+            <div style="font-family:var(--serif);font-size:24px;color:${r[2]}">${r[0]}</div>
+            <div style="font-family:var(--mono);font-size:8px;color:var(--ink3);text-transform:uppercase;margin-top:3px">${r[1]}</div>
+          </div>`).join('')}
+      </div>
+    </div>
+    <div style="margin-bottom:18px">
+      <div style="font-family:var(--mono);font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:var(--green);margin-bottom:10px;border-bottom:1px solid var(--border);padding-bottom:6px">🔬 高置信度发现（三重验证）</div>
+      ${[
+        ['SQLi CVSS 9.8','sqlmap 自动化 · 手工验证 · PoC 脚本','3种方式独立确认，数据库完整读取成功'],
+        ['JWT Bypass CVSS 9.1','Burp Suite 拦截 · 手工伪造 · 自动化脚本','成功获取 Admin 权限，后台接口全部可访问'],
+        ['IDOR CVSS 8.1','枚举 ID 1-1000 · API 批量测试 · 人工审查','100% 命中率，系统性权限缺失'],
+      ].map(r => `<div style="padding:10px 12px;background:rgba(63,185,80,0.05);border:1px solid rgba(63,185,80,0.2);border-left:3px solid var(--green);border-radius:var(--r);margin-bottom:8px">
+        <div style="font-size:11px;font-weight:600;color:var(--ink);margin-bottom:3px">${r[0]}</div>
+        <div style="font-family:var(--mono);font-size:9px;color:var(--ink3);margin-bottom:3px">${r[1]}</div>
+        <div style="font-size:10.5px;color:var(--ink2)">${r[2]}</div>
+      </div>`).join('')}
+    </div>
+    <div>
+      <div style="font-family:var(--mono);font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:var(--blue);margin-bottom:10px;border-bottom:1px solid var(--border);padding-bottom:6px">🏁 质量门控结论</div>
+      ${[
+        ['pass','所有严重/高危发现均附 HTTP 请求记录与截图证据'],
+        ['pass','CVSS 评分已对照 NVD 数据库核实，无评分虚高'],
+        ['pass','修复建议已评估可行性，均为工程可落地方案'],
+        ['pass','误报率 3.6%，远低于行业平均水平 15-20%'],
+        ['warn','建议追加移动端 API 测试（本次范围未覆盖）'],
+      ].map(r => `<div style="padding:8px 12px;background:${r[0]==='pass'?'rgba(63,185,80,0.05)':'rgba(210,153,34,0.05)'};border:1px solid ${r[0]==='pass'?'rgba(63,185,80,0.2)':'rgba(210,153,34,0.25)'};border-left:3px solid ${r[0]==='pass'?'var(--green)':'var(--amber)'};border-radius:var(--r);margin-bottom:6px;font-size:11px;color:var(--ink2)">
+        ${r[0]==='pass'?'✓':'⚠'} ${r[1]}
+      </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+function closeRoleReport() {
+  document.getElementById('rr-detail-overlay').classList.remove('show');
+}
+
+
+function rrNode(id) {
+  var r = ROLE_REPORTS[id];
+  if (!r) return '';
+  return '<div class="rr-node">'
+    + '<div class="rr-card complete" onclick="openRoleReport(\'' + id + '\')" style="width:200px">'
+    + '<div style="position:absolute;top:0;left:0;right:0;height:3px;background:' + r.color + '"></div>'
+    + '<div class="rr-icon">' + r.icon + '</div>'
+    + '<div class="rr-role" style="color:' + r.color + '">' + r.role + '</div>'
+    + '<div class="rr-name">' + r.name + '</div>'
+    + '<div class="rr-findings">' + r.findings + '</div>'
+    + '<div class="rr-status rrs-done" style="margin-top:5px">COMPLETE</div>'
+    + '<div class="rr-dl">⬇ 查看 &amp; 下载</div>'
+    + '</div></div>';
+}
+
+function rrNodeWrap(id) {
+  var r = ROLE_REPORTS[id];
+  if (!r) return '';
+  return '<div class="rr-node" style="flex:1">'
+    + '<div style="width:2px;height:20px;background:var(--border);margin:0 auto"></div>'
+    + '<div class="rr-card complete" onclick="openRoleReport(\'' + id + '\')" style="max-width:175px;margin:0 auto">'
+    + '<div style="position:absolute;top:0;left:0;right:0;height:3px;background:' + r.color + '"></div>'
+    + '<div class="rr-icon" style="font-size:20px">' + r.icon + '</div>'
+    + '<div class="rr-role" style="color:' + r.color + ';font-size:7px">' + r.role + '</div>'
+    + '<div class="rr-name" style="font-size:11px">' + r.name + '</div>'
+    + '<div class="rr-findings" style="font-size:9px">' + r.findings + '</div>'
+    + '<div class="rr-status rrs-done" style="margin-top:4px;font-size:7px">COMPLETE</div>'
+    + '<div class="rr-dl" style="font-size:8px">⬇ 查看报告</div>'
+    + '</div></div>';
+}
+
+function rrStat(val, label, color) {
+  return '<div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:10px;text-align:center">'
+    + '<div style="font-family:var(--serif);font-size:22px;color:' + color + ';line-height:1;margin-bottom:3px">' + val + '</div>'
+    + '<div style="font-family:var(--mono);font-size:8px;color:var(--ink3);text-transform:uppercase;letter-spacing:0.08em">' + label + '</div>'
+    + '</div>';
+}
+
+function buildReportTree(target, cost) {
+  return '<div class="rr-wrap">'
+    + '<div class="rr-title">安全评估报告 · 分岗位视图</div>'
+    + '<div class="rr-sub">点击各岗位节点查看专属报告 · 目标: ' + target + ' · ' + new Date().toLocaleString("zh-CN") + '</div>'
+    + '<div class="rr-tree">'
+
+    // Level 1 — Orchestrator
+    + '<div class="rr-level">' + rrNode('orchestrator') + '</div>'
+    + '<div style="width:2px;height:24px;background:linear-gradient(var(--green),var(--border));margin:0 auto"></div>'
+
+    // Horizontal bar
+    + '<div style="position:relative;width:100%;height:2px;margin-bottom:0">'
+    + '<div style="position:absolute;left:12%;right:12%;top:0;height:2px;background:var(--border)"></div>'
+    + '</div>'
+
+    // Level 2 — 4 specialists
+    + '<div class="rr-level" style="align-items:flex-start;gap:10px">'
+    + rrNodeWrap('pentest')
+    + rrNodeWrap('grc')
+    + rrNodeWrap('architect')
+    + rrNodeWrap('reviewer')
+    + '</div>'
+
+    // Down to final
+    + '<div style="width:2px;height:24px;background:var(--border);margin:0 auto"></div>'
+
+    // Level 3 — Final combined
+    + '<div class="rr-level">'
+    + '<div class="rr-node">'
+    + '<div class="rr-card complete" onclick="openRoleReport(\'orchestrator\')" style="width:260px;background:linear-gradient(135deg,rgba(56,139,253,0.08),var(--bg2))">'
+    + '<div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(to right,var(--blue),var(--green))"></div>'
+    + '<div class="rr-icon">📋</div>'
+    + '<div class="rr-name" style="font-size:14px">综合报告</div>'
+    + '<div style="font-size:10px;color:var(--ink3);margin:3px 0">全部 27 条发现 · 完整合规映射</div>'
+    + '<div class="rr-status rrs-done" style="margin-top:6px">ALL COMPLETE</div>'
+    + '<div class="rr-dl">⬇ 点击查看综合报告</div>'
+    + '</div></div></div>'
+
+    + '</div>' // rr-tree
+
+    // Summary stats
+    + '<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:14px">'
+    + rrStat('4', 'Critical', 'var(--red)')
+    + rrStat('10', 'High', 'var(--amber)')
+    + rrStat('8', '合规缺口', 'var(--purple)')
+    + rrStat('$' + cost, '总成本', 'var(--blue)')
+    + rrStat('97%', '覆盖率', 'var(--green)')
+    + '</div>'
+    + '</div>';
+}
+
+
+
+
+// ══════════════════════════════════════
+// AUDIO — HTML5 real music via CDN
+// ══════════════════════════════════════
+var bgAudio = null;
+var isPlaying = false, isMuted = false, currentTrack = 0, visInterval = null;
+
+// Free ambient music from Pixabay CDN (no API key needed, CC0 license)
+var TRACKS = [
+  { name: 'Ambient Calm',  src: 'https://cdn.pixabay.com/download/audio/2022/03/10/audio_270f9f37a4.mp3' },
+  { name: 'Soft Focus',    src: 'https://cdn.pixabay.com/download/audio/2022/08/02/audio_884fe92c21.mp3' },
+  { name: 'Night Scan',    src: 'https://cdn.pixabay.com/download/audio/2022/01/18/audio_d0c6ff1bc7.mp3' },
+];
+
+function initAudio() {
+  if (bgAudio) return;
+  bgAudio = new Audio();
+  bgAudio.loop = true;
+  bgAudio.volume = 0.35;
+  bgAudio.crossOrigin = 'anonymous';
+  bgAudio.src = TRACKS[0].src;
+  bgAudio.addEventListener('error', function() {
+    // fallback — try next track
+    currentTrack = (currentTrack + 1) % TRACKS.length;
+    bgAudio.src = TRACKS[currentTrack].src;
+    document.getElementById('ab-name').textContent = TRACKS[currentTrack].name;
+    if (isPlaying) bgAudio.play();
+  });
+}
+
+function audioToggle() {
+  initAudio();
+  if (isPlaying) {
+    bgAudio.pause();
+    isPlaying = false;
+    document.getElementById('ab-play').textContent = '▶';
+    stopVis();
+  } else {
+    bgAudio.play().catch(function() {
+      showToast('请先点击页面任意位置再播放音乐');
+    });
+    isPlaying = true;
+    document.getElementById('ab-play').textContent = '⏸';
+    startVis();
+  }
+}
+
+function audioNext() {
+  initAudio();
+  currentTrack = (currentTrack + 1) % TRACKS.length;
+  var wasPlaying = isPlaying;
+  bgAudio.src = TRACKS[currentTrack].src;
+  document.getElementById('ab-name').textContent = TRACKS[currentTrack].name;
+  if (wasPlaying) {
+    bgAudio.play().catch(function(){});
+  }
+  sfxClick();
+}
+
+function audioVol(v) {
+  initAudio();
+  var vol = parseFloat(v);
+  bgAudio.volume = isMuted ? 0 : vol;
+}
+
+function audioMute() {
+  initAudio();
+  isMuted = !isMuted;
+  bgAudio.volume = isMuted ? 0 : parseFloat(document.getElementById('ab-vol').value);
+  document.getElementById('ab-mute').textContent = isMuted ? '🔇' : '🔊';
+}
+
+// ── Visualizer ──
+function startVis() {
+  stopVis();
+  var bars = document.querySelectorAll('.ab-bar-vis');
+  visInterval = setInterval(function() {
+    bars.forEach(function(b) {
+      b.style.height = (3 + Math.random() * 9) + 'px';
+    });
+  }, 150);
+}
+
+function stopVis() {
+  if (visInterval) { clearInterval(visInterval); visInterval = null; }
+  document.querySelectorAll('.ab-bar-vis').forEach(function(b){ b.style.height = '3px'; });
+}
+
+// ── SFX using Web Audio (short tones only — these work fine) ──
+var AC2 = null;
+function getAC() {
+  if (!AC2) AC2 = new (window.AudioContext || window.webkitAudioContext)();
+  if (AC2.state === 'suspended') AC2.resume();
+  return AC2;
+}
+
+function sfxTone(freq, dur, vol) {
+  if (isMuted) return;
+  try {
+    var ac = getAC();
+    var o = ac.createOscillator();
+    var g = ac.createGain();
+    o.type = 'sine';
+    o.frequency.value = freq;
+    g.gain.setValueAtTime(0, ac.currentTime);
+    g.gain.linearRampToValueAtTime(vol || 0.08, ac.currentTime + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + dur);
+    o.connect(g); g.connect(ac.destination);
+    o.start(); o.stop(ac.currentTime + dur + 0.05);
+  } catch(e){}
+}
+
+function sfxClick()   { sfxTone(1047, 0.10, 0.06); }
+function sfxError()   { sfxTone(220, 0.25, 0.08); setTimeout(function(){ sfxTone(196, 0.25, 0.07); }, 120); }
+function sfxScan()    { sfxTone(440, 0.12, 0.07); setTimeout(function(){ sfxTone(880, 0.20, 0.06); }, 150); }
+
+function sfxSuccess() {
+  [523, 659, 784, 1047].forEach(function(f, i) {
+    setTimeout(function(){ sfxTone(f, 0.4, 0.07); }, i * 100);
+  });
+}
+
+function sfxLogin() {
+  [261.6, 329.6, 392, 523, 659].forEach(function(f, i) {
+    setTimeout(function(){ sfxTone(f, 0.35, 0.07); }, i * 120);
+  });
+}
+
+function sfxReport() {
+  [523, 659, 784, 659, 784, 1047].forEach(function(f, i) {
+    setTimeout(function(){ sfxTone(f, 0.4, 0.07); }, i * 110);
+  });
+}
+
+// ── Hook into app events ──
+var _origEnterApp = window.enterApp;
+window.enterApp = function(dept) {
+  sfxLogin();
+  setTimeout(function() {
+    if (!isPlaying) {
+      initAudio();
+      bgAudio.play().catch(function(){});
+      isPlaying = true;
+      document.getElementById('ab-play').textContent = '⏸';
+      startVis();
+    }
+  }, 800);
+  if (typeof _origEnterApp === 'function') _origEnterApp(dept);
+};
+
+var _origCardClick = window.cardClick;
+window.cardClick = function(id) {
+  sfxClick();
+  if (typeof _origCardClick === 'function') _origCardClick(id);
+};
+
+var _origStartRun = window.startRun;
+window.startRun = function() {
+  sfxScan();
+  if (typeof _origStartRun === 'function') _origStartRun();
+};
+
+var _origShowReport = window.showReport;
+window.showReport = function(t, c) {
+  sfxSuccess();
+  setTimeout(sfxReport, 900);
+  if (typeof _origShowReport === 'function') _origShowReport(t, c);
+};
+
+var _origOpenRole = window.openRoleReport;
+window.openRoleReport = function(id) {
+  sfxClick();
+  if (typeof _origOpenRole === 'function') _origOpenRole(id);
+};
+
+var _origVerify = window.verifyReportPass;
+window.verifyReportPass = function() {
+  var pass = document.getElementById('gate-pass').value;
+  if (!pass) { sfxError(); } else { sfxSuccess(); }
+  if (typeof _origVerify === 'function') _origVerify();
+};
+
+</script>
+
+<!-- ══════════════ REPORT PASSWORD GATE ══════════════ -->
+<div id="report-gate">
+  <div class="gate-box">
+    <div class="gate-icon">🔐</div>
+    <div class="gate-title">报告访问验证</div>
+    <div class="gate-sub">此报告含高危漏洞详情及 PoC 代码<br>仅限授权安全人员查阅</div>
+    <label class="gate-label">报告访问密码</label>
+    <input class="gate-input" id="gate-pass" type="password" placeholder="••••••••" maxlength="20" onkeydown="gateKeydown(event)">
+    <button class="gate-btn" onclick="verifyReportPass()">▶ 验证访问权限</button>
+    <div class="gate-error" id="gate-error"></div>
+    <div class="gate-hint">CIS Admin 权限账号 · 请输入报告密码</div>
+  </div>
+</div>
+
+<!-- ══════════════ REPORT FULL PAGE ══════════════ -->
+<div id="report-page">
+  <div class="report-page-header">
+    <div class="report-page-back" onclick="closeReportPage()">← 返回主界面</div>
+    <div class="report-page-title">Hy-<em>AGI</em> · 安全报告</div>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:10px">
+      <div class="user-chip"><div class="user-dot"></div><span>security · CIS Admin</span></div>
+      <button class="btn btn-primary" onclick="openExportModal()" style="padding:7px 16px">⬇ 导出报告</button>
+    </div>
+  </div>
+  <div class="report-page-body" id="report-page-body"></div>
+</div>
+
+
+<!-- ══════════════ EXPORT MODAL ══════════════ -->
+<div id="export-modal">
+  <div class="export-box">
+    <div id="export-main-view">
+      <div class="export-title">导出报告</div>
+      <div class="export-sub">选择导出格式与加密选项</div>
+
+      <div class="export-formats">
+        <div class="export-fmt selected" id="fmt-pdf" onclick="selectFmt('pdf')">
+          <div class="ef-icon">📄</div>
+          <div class="ef-name">PDF Report</div>
+          <div class="ef-desc">完整格式化报告，含图表与执行摘要</div>
+          <span class="ef-tag ef-tag-green">支持加密</span>
+        </div>
+        <div class="export-fmt" id="fmt-xlsx" onclick="selectFmt('xlsx')">
+          <div class="ef-icon">📊</div>
+          <div class="ef-name">Excel (XLSX)</div>
+          <div class="ef-desc">漏洞清单电子表格，可筛选排序</div>
+          <span class="ef-tag ef-tag-green">支持加密</span>
+        </div>
+        <div class="export-fmt" id="fmt-csv" onclick="selectFmt('csv')">
+          <div class="ef-icon">📋</div>
+          <div class="ef-name">CSV</div>
+          <div class="ef-desc">原始数据导出，适合 SIEM 导入</div>
+          <span class="ef-tag ef-tag-amber">明文格式</span>
+        </div>
+        <div class="export-fmt" id="fmt-sysreptor" onclick="selectFmt('sysreptor')">
+          <div class="ef-icon">🛡️</div>
+          <div class="ef-name">Sysreptor</div>
+          <div class="ef-desc">渗透测试报告平台标准 JSON 格式</div>
+          <span class="ef-tag ef-tag-purple">专业格式</span>
+        </div>
+      </div>
+
+      <div class="export-options">
+        <div class="export-opt-row">
+          <div>
+            <div class="export-opt-label">🔒 加密保护</div>
+            <div class="export-opt-sub">为导出文件设置访问密码</div>
+          </div>
+          <div class="toggle" id="enc-toggle" onclick="toggleEncrypt()"></div>
+        </div>
+        <div id="enc-pass-section" class="enc-pass-wrap">
+          <label class="enc-pass-label">设置加密密码</label>
+          <input class="enc-pass-input" id="enc-password" type="password" placeholder="输入密码（建议12位以上）" oninput="checkStrength()">
+          <div class="enc-strength">
+            <div class="enc-bar" id="eb1"></div>
+            <div class="enc-bar" id="eb2"></div>
+            <div class="enc-bar" id="eb3"></div>
+            <div class="enc-bar" id="eb4"></div>
+            <div class="enc-str-label" id="enc-str-label">—</div>
+          </div>
+        </div>
+        <div class="export-opt-row">
+          <div>
+            <div class="export-opt-label">📌 包含 PoC 代码</div>
+            <div class="export-opt-sub">附加漏洞验证概念证明脚本</div>
+          </div>
+          <div class="toggle on" id="poc-toggle" onclick="toggleOpt('poc-toggle')"></div>
+        </div>
+        <div class="export-opt-row">
+          <div>
+            <div class="export-opt-label">📊 包含执行摘要</div>
+            <div class="export-opt-sub">管理层可读的非技术摘要</div>
+          </div>
+          <div class="toggle on" id="exec-toggle" onclick="toggleOpt('exec-toggle')"></div>
+        </div>
+        <div class="export-opt-row">
+          <div>
+            <div class="export-opt-label">🗂 包含合规映射</div>
+            <div class="export-opt-sub">PCI-DSS / ISO27001 / OWASP 对照表</div>
+          </div>
+          <div class="toggle on" id="comp-toggle" onclick="toggleOpt('comp-toggle')"></div>
+        </div>
+      </div>
+
+      <div class="export-footer">
+        <button class="btn btn-ghost" onclick="closeExportModal()">取消</button>
+        <button class="btn btn-primary" id="export-go-btn" onclick="startExport()">⬇ 生成导出</button>
+      </div>
+    </div>
+
+    <!-- Progress view -->
+    <div class="export-progress" id="export-progress-view">
+      <div class="ep-spinner"></div>
+      <div class="ep-label" id="ep-label">准备中...</div>
+      <div class="ep-bar-wrap"><div class="ep-bar" id="ep-bar"></div></div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════ AGENT CONFIG MODAL ══════════════ -->
+<div id="agent-config-modal">
+  <div class="acm-box">
+    <div class="acm-header">
+      <div class="acm-color-bar" id="acm-color-bar"></div>
+      <div>
+        <div class="acm-agent-name" id="acm-agent-name">Agent</div>
+        <div class="acm-agent-role" id="acm-agent-role">配置</div>
+      </div>
+      <div class="acm-close" onclick="closeAgentConfig()">✕</div>
+    </div>
+    <div class="acm-body">
+
+      <!-- Cost & Limits -->
+      <div class="acm-section">
+        <div class="acm-section-title">💰 成本与限制</div>
+        <div class="acm-slider-row">
+          <div class="acm-slider-label">最大成本上限<span>超出后强制停止</span></div>
+          <input type="range" class="acm-slider" id="acm-cost" min="0.1" max="10" step="0.1" oninput="updateSlider('acm-cost','$','','acm-cost-disp',2)">
+          <div class="acm-slider-val" id="acm-cost-disp">$0.00</div>
+        </div>
+        <div class="acm-slider-row">
+          <div class="acm-slider-label">最大调用次数<span>LLM 调用上限</span></div>
+          <input type="range" class="acm-slider" id="acm-calls" min="10" max="200" step="10" oninput="updateSlider('acm-calls','','次','acm-calls-disp',0)">
+          <div class="acm-slider-val" id="acm-calls-disp">0次</div>
+        </div>
+        <div class="acm-slider-row">
+          <div class="acm-slider-label">超时时间<span>单次任务最长时间</span></div>
+          <input type="range" class="acm-slider" id="acm-timeout" min="10" max="180" step="10" oninput="updateSlider('acm-timeout','','分钟','acm-timeout-disp',0)">
+          <div class="acm-slider-val" id="acm-timeout-disp">0分钟</div>
+        </div>
+        <div class="acm-slider-row">
+          <div class="acm-slider-label">Temperature<span>创造力 vs 精确度</span></div>
+          <input type="range" class="acm-slider" id="acm-temp" min="0" max="1" step="0.05" oninput="updateSlider('acm-temp','','','acm-temp-disp',2)">
+          <div class="acm-slider-val" id="acm-temp-disp">0.00</div>
+        </div>
+        <div class="acm-slider-row">
+          <div class="acm-slider-label">重试次数<span>失败后自动重试</span></div>
+          <input type="range" class="acm-slider" id="acm-retry" min="0" max="5" step="1" oninput="updateSlider('acm-retry','','次','acm-retry-disp',0)">
+          <div class="acm-slider-val" id="acm-retry-disp">0次</div>
+        </div>
+      </div>
+
+      <!-- Model Selection -->
+      <div class="acm-section">
+        <div class="acm-section-title">🤖 模型选择</div>
+        <div class="acm-model-grid">
+          <div class="acm-model-btn" id="mdl-claude-opus-4-6" onclick="selectModel('claude-opus-4-6')">
+            <div class="acm-model-name">claude-opus-4-6</div>
+            <div class="acm-model-tier">最强推理</div>
+            <div class="acm-model-cost" style="color:var(--red)">$$$ 高成本</div>
+          </div>
+          <div class="acm-model-btn" id="mdl-claude-sonnet-4-6" onclick="selectModel('claude-sonnet-4-6')">
+            <div class="acm-model-name">claude-sonnet-4-6</div>
+            <div class="acm-model-tier">均衡性能</div>
+            <div class="acm-model-cost" style="color:var(--amber)">$$ 中成本</div>
+          </div>
+          <div class="acm-model-btn" id="mdl-claude-haiku-4-5" onclick="selectModel('claude-haiku-4-5')">
+            <div class="acm-model-name">claude-haiku-4-5</div>
+            <div class="acm-model-tier">快速轻量</div>
+            <div class="acm-model-cost" style="color:var(--green)">$ 低成本</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Priority -->
+      <div class="acm-section">
+        <div class="acm-section-title">⚡ 执行优先级</div>
+        <div class="acm-prio-row">
+          <div class="acm-prio-btn" id="prio-high" onclick="selectPriority('high')">HIGH</div>
+          <div class="acm-prio-btn" id="prio-medium" onclick="selectPriority('medium')">MEDIUM</div>
+          <div class="acm-prio-btn" id="prio-low" onclick="selectPriority('low')">LOW</div>
+        </div>
+      </div>
+
+      <!-- Memory Mode -->
+      <div class="acm-section">
+        <div class="acm-section-title">🧠 记忆模式</div>
+        <div class="acm-mem-grid">
+          <div class="acm-mem-btn" id="mem-none" onclick="selectMemory('none')">
+            <div class="acm-mem-name">无记忆</div>
+            <div class="acm-mem-desc">每次独立执行</div>
+          </div>
+          <div class="acm-mem-btn" id="mem-vector" onclick="selectMemory('vector')">
+            <div class="acm-mem-name">向量检索</div>
+            <div class="acm-mem-desc">pgvector 语义搜索</div>
+          </div>
+          <div class="acm-mem-btn" id="mem-graph" onclick="selectMemory('graph')">
+            <div class="acm-mem-name">知识图谱</div>
+            <div class="acm-mem-desc">Neo4j 关系记忆</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Skills -->
+      <div class="acm-section">
+        <div class="acm-section-title">🛠 技能配置
+          <span class="acm-skill-count" id="acm-skill-count"></span>
+        </div>
+        <div class="acm-skills-grid" id="acm-skills-grid"></div>
+      </div>
+
+      <!-- Cost Estimate -->
+      <div class="acm-cost-badge">
+        <div class="acm-cost-label">预估本次执行成本</div>
+        <div class="acm-cost-val" id="acm-est-cost">$0.00</div>
+      </div>
+
+    </div>
+    <div class="acm-footer">
+      <button class="acm-reset-btn" onclick="resetAgentConfig()">↺ 恢复默认</button>
+      <div style="display:flex;gap:9px">
+        <button class="btn btn-ghost" onclick="closeAgentConfig()">取消</button>
+        <button class="btn btn-primary" onclick="saveAgentConfig()">✓ 保存配置</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════ ROLE REPORT DETAIL ══════════════ -->
+<div class="rr-detail-overlay" id="rr-detail-overlay">
+  <div class="rr-detail-box">
+    <div class="rrd-header">
+      <div class="rrd-color" id="rrd-color"></div>
+      <div>
+        <div style="font-family:var(--serif);font-size:18px;color:var(--ink)" id="rrd-title">报告</div>
+        <div style="font-family:var(--mono);font-size:9px;color:var(--ink3);letter-spacing:0.1em;text-transform:uppercase;margin-top:2px" id="rrd-sub"></div>
+      </div>
+      <div class="rrd-close" onclick="closeRoleReport()">✕</div>
+    </div>
+    <div class="rrd-body" id="rrd-body"></div>
+    <div class="rrd-footer">
+      <button class="btn btn-ghost" onclick="closeRoleReport()">关闭</button>
+      <button class="btn btn-primary" onclick="openExportModal()">⬇ 导出此报告</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══ AUDIO BAR ══ -->
+<div id="audio-bar" style="opacity:0.7">
+  <div class="ab-btn" id="ab-play" onclick="audioToggle()" title="播放/暂停">▶</div>
+  <div class="ab-btn" onclick="audioNext()" title="下一首" style="font-size:11px">⏭</div>
+  <div class="ab-vis" id="ab-vis">
+    <div class="ab-bar-vis" style="height:4px"></div>
+    <div class="ab-bar-vis" style="height:8px"></div>
+    <div class="ab-bar-vis" style="height:4px"></div>
+    <div class="ab-bar-vis" style="height:10px"></div>
+    <div class="ab-bar-vis" style="height:6px"></div>
+  </div>
+  <div class="ab-track-name" id="ab-name">Hy-AGI Ambient</div>
+  <div class="ab-vol-wrap">
+    <span style="font-size:10px">🔈</span>
+    <input type="range" class="ab-vol" id="ab-vol" min="0" max="1" step="0.05" value="0.35" oninput="audioVol(this.value)">
+  </div>
+  <div class="ab-btn" id="ab-mute" onclick="audioMute()" title="静音" style="font-size:11px">🔊</div>
+</div>
+
+</body>
+</html>
