@@ -42,7 +42,7 @@ async function initializeAgents() {
 // ============================================================================
 
 // Health check
-app.get('/api/health', (req: Request, res: Response) => {
+app.get('/api/health', (_req: Request, res: Response) => {
   res.json({
     status: 'healthy',
     version: '1.0.0',
@@ -52,7 +52,7 @@ app.get('/api/health', (req: Request, res: Response) => {
 });
 
 // Get available agents
-app.get('/api/agents', (req: Request, res: Response) => {
+app.get('/api/agents', (_req: Request, res: Response) => {
   const agentList = Array.from(agents.values()).map(agent => agent.getMetadata());
   res.json({
     success: true,
@@ -70,7 +70,7 @@ app.get('/api/agents/:id/status', (req: Request, res: Response) => {
     });
   }
 
-  res.json({
+  return res.json({
     success: true,
     data: agent.getStatus()
   });
@@ -107,12 +107,13 @@ app.post('/api/tasks', async (req: Request, res: Response) => {
       target,
       skillRequired: skill,
       priority: 'medium' as const,
-      parameters
+      parameters,
+      createdAt: Date.now()
     };
 
     const result = await agent.execute(task);
 
-    res.json({
+    return res.json({
       success: true,
       data: result,
       meta: {
@@ -122,7 +123,7 @@ app.post('/api/tasks', async (req: Request, res: Response) => {
     });
   } catch (error: any) {
     logger.error('Task execution failed:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: {
         code: 'EXECUTION_FAILED',
@@ -133,7 +134,7 @@ app.post('/api/tasks', async (req: Request, res: Response) => {
 });
 
 // Get system metrics
-app.get('/api/metrics', (req: Request, res: Response) => {
+app.get('/api/metrics', (_req: Request, res: Response) => {
   const metrics = {
     agents: {
       active: agents.size,
@@ -177,7 +178,7 @@ app.get('/api/metrics', (req: Request, res: Response) => {
 });
 
 // Demo endpoint - Generate sample findings
-app.get('/api/demo/findings', (req: Request, res: Response) => {
+app.get('/api/demo/findings', (_req: Request, res: Response) => {
   const sampleFindings = [
     {
       id: 'demo-1',
@@ -216,13 +217,13 @@ app.get('/api/demo/findings', (req: Request, res: Response) => {
 // Serve frontend in production
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static('../frontend'));
-  app.get('*', (req: Request, res: Response) => {
+  app.get('*', (_req: Request, res: Response) => {
     res.sendFile('index.html', { root: '../frontend' });
   });
 }
 
 // Error handling middleware
-app.use((err: any, req: Request, res: Response, next: any) => {
+app.use((err: any, _req: Request, res: Response, _next: any) => {
   logger.error('Unhandled error:', err);
   res.status(500).json({
     success: false,
@@ -234,7 +235,7 @@ app.use((err: any, req: Request, res: Response, next: any) => {
 });
 
 // 404 handler
-app.use((req: Request, res: Response) => {
+app.use((_req: Request, res: Response) => {
   res.status(404).json({
     success: false,
     error: {

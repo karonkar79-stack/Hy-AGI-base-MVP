@@ -17,7 +17,6 @@ import { MessageBus } from '../../communication/MessageBus';
 import { MetricsCollector } from '../../monitoring/MetricsCollector';
 import {
   AgentMetadata,
-  AgentConfig,
   Task,
   TaskResult,
   Finding,

@@ -43,9 +43,6 @@
     "express-rate-limit": "^7.1.5",
     "uuid": "^9.0.1",
     "prom-client": "^15.1.0",
-    "langchain": "^0.1.30",
-    "@langchain/anthropic": "^0.1.12",
-    "langgraph": "^0.0.19",
     "compromise": "^14.13.0"
   },
   "devDependencies": {

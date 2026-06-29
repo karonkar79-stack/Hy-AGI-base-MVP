@@ -22,6 +22,8 @@
   --r:6px;--shadow:0 4px 24px rgba(0,0,0,0.4);
 }
 *{margin:0;padding:0;box-sizing:border-box}
+/* Render the whole UI at 150% by default (same effect as browser zoom 150% while the browser stays at 100%). */
+html{zoom:1.5}
 html,body{width:100%;min-height:100%;background:var(--bg);color:var(--ink);font-family:var(--sans);overflow-x:hidden}
 
 /* ══ LOGIN PAGE ══ */
@@ -213,7 +215,7 @@ html,body{width:100%;min-height:100%;background:var(--bg);color:var(--ink);font-
 /* ══ MODAL ══ */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:500;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.2s;backdrop-filter:blur(4px)}
 .modal-overlay.show{opacity:1;pointer-events:all}
-.modal{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:26px;width:600px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow);transform:translateY(16px);transition:transform 0.2s}
+.modal{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:26px;width:600px;max-width:95%;max-height:90%;overflow-y:auto;box-shadow:var(--shadow);transform:translateY(16px);transition:transform 0.2s}
 .modal-overlay.show .modal{transform:translateY(0)}
 .modal-title{font-family:var(--serif);font-size:20px;color:var(--ink);margin-bottom:3px}
 .modal-sub{font-size:12px;color:var(--ink3);margin-bottom:20px}
@@ -472,7 +474,7 @@ html,body{width:100%;min-height:100%;background:var(--bg);color:var(--ink);font-
 }
 #agent-config-modal.show{display:flex}
 .acm-box{
-  width:660px;max-height:88vh;overflow-y:auto;
+  width:660px;max-height:88%;overflow-y:auto;
   background:var(--bg2);border:1px solid var(--border);
   border-radius:12px;box-shadow:0 24px 80px rgba(0,0,0,0.7);
 }
@@ -626,7 +628,7 @@ html,body{width:100%;min-height:100%;background:var(--bg);color:var(--ink);font-
 }
 .rr-detail-overlay.show{display:flex}
 .rr-detail-box{
-  width:720px;max-height:88vh;overflow-y:auto;
+  width:720px;max-height:88%;overflow-y:auto;
   background:var(--bg2);border:1px solid var(--border);
   border-radius:12px;box-shadow:0 24px 80px rgba(0,0,0,0.7);
 }
@@ -654,39 +656,44 @@ html,body{width:100%;min-height:100%;background:var(--bg);color:var(--ink);font-
 
 /* ══ AUDIO CONTROLS ══ */
 #audio-bar{
-  position:fixed;bottom:20px;left:20px;z-index:9000;
-  display:flex;align-items:center;gap:8px;
-  padding:8px 14px;
+  position:fixed;bottom:16px;left:16px;z-index:9000;
+  display:flex;align-items:center;gap:5px;
+  padding:4px;
   background:rgba(22,27,34,0.92);
   border:1px solid var(--border);
-  border-radius:30px;
+  border-radius:22px;
   backdrop-filter:blur(12px);
   box-shadow:0 4px 20px rgba(0,0,0,0.4);
-  transition:opacity 0.3s;
+  transition:opacity 0.3s,padding 0.2s;
 }
 #audio-bar:hover{opacity:1 !important}
+/* Collapsed by default: only the round toggle shows. Click it to expand. */
+#audio-bar:not(.expanded) .ab-controls{display:none}
+#audio-bar.expanded{padding:4px 12px 4px 4px;gap:5px}
+.ab-controls{display:flex;align-items:center;gap:5px}
 .ab-btn{
-  width:28px;height:28px;border-radius:50%;
+  width:22px;height:22px;border-radius:50%;
   background:var(--bg3);border:1px solid var(--border);
   cursor:pointer;display:flex;align-items:center;justify-content:center;
-  font-size:13px;transition:all 0.15s;flex-shrink:0;
+  font-size:11px;transition:all 0.15s;flex-shrink:0;
 }
 .ab-btn:hover{border-color:var(--blue);background:var(--blue-ll)}
-.ab-vol-wrap{display:flex;align-items:center;gap:5px}
+#ab-toggle{background:var(--blue-l);border-color:var(--border-b)}
+.ab-vol-wrap{display:flex;align-items:center;gap:4px}
 .ab-vol{
-  -webkit-appearance:none;width:60px;height:3px;
+  -webkit-appearance:none;width:48px;height:3px;
   border-radius:2px;background:var(--bg4);outline:none;cursor:pointer;
 }
 .ab-vol::-webkit-slider-thumb{
-  -webkit-appearance:none;width:11px;height:11px;
+  -webkit-appearance:none;width:10px;height:10px;
   border-radius:50%;background:var(--blue);cursor:pointer;
 }
 .ab-track-name{
-  font-family:var(--mono);font-size:8.5px;color:var(--ink3);
-  letter-spacing:0.06em;max-width:110px;
+  font-family:var(--mono);font-size:8px;color:var(--ink3);
+  letter-spacing:0.05em;max-width:90px;
   overflow:hidden;white-space:nowrap;text-overflow:ellipsis;
 }
-.ab-vis{display:flex;align-items:flex-end;gap:2px;height:14px}
+.ab-vis{display:flex;align-items:flex-end;gap:2px;height:12px}
 .ab-bar-vis{
   width:3px;border-radius:2px;background:var(--blue);
   transition:height 0.15s;
@@ -2704,6 +2711,12 @@ function initAudio() {
   });
 }
 
+// Expand/collapse the audio bar. Collapsed shows only the round 🎵 toggle.
+function audioBarToggle() {
+  document.getElementById('audio-bar').classList.toggle('expanded');
+  sfxClick();
+}
+
 function audioToggle() {
   initAudio();
   if (isPlaying) {
@@ -3120,21 +3133,24 @@ window.verifyReportPass = function() {
 
 <!-- ══ AUDIO BAR ══ -->
 <div id="audio-bar" style="opacity:0.7">
-  <div class="ab-btn" id="ab-play" onclick="audioToggle()" title="播放/暂停">▶</div>
-  <div class="ab-btn" onclick="audioNext()" title="下一首" style="font-size:11px">⏭</div>
-  <div class="ab-vis" id="ab-vis">
-    <div class="ab-bar-vis" style="height:4px"></div>
-    <div class="ab-bar-vis" style="height:8px"></div>
-    <div class="ab-bar-vis" style="height:4px"></div>
-    <div class="ab-bar-vis" style="height:10px"></div>
-    <div class="ab-bar-vis" style="height:6px"></div>
+  <div class="ab-btn" id="ab-toggle" onclick="audioBarToggle()" title="音乐控制">🎵</div>
+  <div class="ab-controls">
+    <div class="ab-btn" id="ab-play" onclick="audioToggle()" title="播放/暂停">▶</div>
+    <div class="ab-btn" onclick="audioNext()" title="下一首">⏭</div>
+    <div class="ab-vis" id="ab-vis">
+      <div class="ab-bar-vis" style="height:4px"></div>
+      <div class="ab-bar-vis" style="height:8px"></div>
+      <div class="ab-bar-vis" style="height:4px"></div>
+      <div class="ab-bar-vis" style="height:10px"></div>
+      <div class="ab-bar-vis" style="height:6px"></div>
+    </div>
+    <div class="ab-track-name" id="ab-name">Hy-AGI Ambient</div>
+    <div class="ab-vol-wrap">
+      <span style="font-size:10px">🔈</span>
+      <input type="range" class="ab-vol" id="ab-vol" min="0" max="1" step="0.05" value="0.35" oninput="audioVol(this.value)">
+    </div>
+    <div class="ab-btn" id="ab-mute" onclick="audioMute()" title="静音">🔊</div>
   </div>
-  <div class="ab-track-name" id="ab-name">Hy-AGI Ambient</div>
-  <div class="ab-vol-wrap">
-    <span style="font-size:10px">🔈</span>
-    <input type="range" class="ab-vol" id="ab-vol" min="0" max="1" step="0.05" value="0.35" oninput="audioVol(this.value)">
-  </div>
-  <div class="ab-btn" id="ab-mute" onclick="audioMute()" title="静音" style="font-size:11px">🔊</div>
 </div>
 
 </body>
