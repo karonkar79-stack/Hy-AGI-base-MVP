@@ -25,7 +25,7 @@ npm install
 # Start PostgreSQL, Redis, Neo4j
 docker-compose up -d
 
-# Wait for services to be ready (check with)
+# Wait for services to be ready (check with the command below)
 docker-compose ps
 ```
 
