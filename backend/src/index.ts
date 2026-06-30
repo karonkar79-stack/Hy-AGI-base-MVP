@@ -13,6 +13,11 @@ import { KnowledgeStore } from './knowledge/KnowledgeStore';
 import { IngestionService } from './knowledge/IngestionService';
 import { IngestRequest } from './types';
 import { logger } from './utils/logger';
+import { ConversationStore } from './chat/store';
+import { ConversationService } from './chat/ConversationService';
+import { sendText } from './integrations/lark/messaging';
+import { startLarkBot } from './integrations/lark/events';
+import { createBedrockClient, isBedrockEnabled } from './llm/bedrock';
 
 // Load environment variables — backend/.env if present, then the repo-root
 // .env (where docker-compose and .env.example also live). dotenv does not
@@ -45,6 +50,25 @@ function getIngestionService(): IngestionService {
     ingestionService = new IngestionService(knowledgeStore);
   }
   return ingestionService;
+}
+
+let conversationService: ConversationService | null = null;
+let conversationStore: ConversationStore | null = null;
+
+function getConversationService(): ConversationService {
+  if (!conversationService) {
+    conversationStore = new ConversationStore();
+    if (!isBedrockEnabled()) {
+      throw new Error('Bedrock must be configured (AWS_BEARER_TOKEN_BEDROCK) for the chatbot');
+    }
+    conversationService = new ConversationService({
+      store: conversationStore,
+      llm: createBedrockClient(),
+      send: sendText,
+      operatorChatId: process.env.OPERATOR_CHAT_ID,
+    });
+  }
+  return conversationService;
 }
 
 async function initializeAgents() {
@@ -306,6 +330,17 @@ async function startServer() {
     // Initialize agents
     await initializeAgents();
 
+    // Start the Lark chatbot if it is fully configured.
+    if (process.env.LARK_APP_ID && process.env.DATABASE_URL && isBedrockEnabled()) {
+      try {
+        startLarkBot(getConversationService());
+      } catch (err: any) {
+        logger.error(`Lark bot failed to start: ${err.message}`);
+      }
+    } else {
+      logger.warn('Lark chatbot not started (need LARK_APP_ID + DATABASE_URL + Bedrock).');
+    }
+
     // Start server
     app.listen(PORT, () => {
       logger.info(`✅ Hy-AGI Backend started on port ${PORT}`);
@@ -331,6 +366,9 @@ process.on('SIGTERM', async () => {
   }
   if (knowledgeStore) {
     await knowledgeStore.close();
+  }
+  if (conversationStore) {
+    await conversationStore.close();
   }
   process.exit(0);
 });
