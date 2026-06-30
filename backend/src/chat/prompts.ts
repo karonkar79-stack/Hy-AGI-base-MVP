@@ -99,12 +99,13 @@ function asOptionalStringArray(v: unknown): string[] | undefined {
 /** Tolerant parse: extract the first {...} block, coerce each field, default to emptyScope. */
 export function parseScopeJson(raw: string): PentestScope {
   const scope = emptyScope();
-  const match = raw.match(/\{[\s\S]*\}/);
-  if (!match) return scope;
+  const fenceMatch = raw.match(/```(?:json)?\s*([\s\S]*?)```/);
+  const jsonStr = fenceMatch ? fenceMatch[1].trim() : raw.match(/\{[\s\S]*\}/)?.[0];
+  if (!jsonStr) return scope;
 
   let obj: any;
   try {
-    obj = JSON.parse(match[0]);
+    obj = JSON.parse(jsonStr);
   } catch {
     return scope;
   }

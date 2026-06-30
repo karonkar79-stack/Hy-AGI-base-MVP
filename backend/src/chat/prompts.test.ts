@@ -1,5 +1,5 @@
 // src/chat/prompts.test.ts
-import { parseScopeJson, buildContext } from './prompts';
+import { parseScopeJson, buildContext, extractPrompt, conversePrompt } from './prompts';
 import { MessageRow, DocumentRow } from './store';
 
 describe('parseScopeJson', () => {
@@ -35,6 +35,11 @@ describe('parseScopeJson', () => {
     const scope = parseScopeJson('{"environment":"banana"}');
     expect(scope.environment).toBe('unknown');
   });
+
+  it('does not break when trailing prose contains braces', () => {
+    const raw = '```json\n{"environment":"prod"}\n```\nSee {redacted}.';
+    expect(parseScopeJson(raw).environment).toBe('prod');
+  });
 });
 
 describe('buildContext', () => {
@@ -61,5 +66,14 @@ describe('buildContext', () => {
     expect(ctx).toContain('Target is the billing API.');
     expect(ctx).toContain('user: hi');
     expect(ctx).toContain('assistant: hello');
+  });
+});
+
+describe('prompt routing contract', () => {
+  it('extractPrompt contains the routing phrase Task 5 keys on', () => {
+    expect(extractPrompt()).toContain('extract a structured pentest scope');
+  });
+  it('conversePrompt does not contain the routing phrase', () => {
+    expect(conversePrompt([])).not.toContain('extract a structured pentest scope');
   });
 });
