@@ -277,6 +277,53 @@ export interface DatabaseConfig {
 }
 
 // ============================================================================
+// Knowledge Base Types (Lark ingestion + pgvector)
+// ============================================================================
+
+export type LarkSourceType = 'wiki_space' | 'doc' | 'drive_folder';
+
+export interface IngestRequest {
+  type: LarkSourceType;
+  token: string;
+}
+
+/** A single document pulled from Lark, before chunking. */
+export interface DocPayload {
+  sourceType: LarkSourceType | 'drive_file';
+  sourceId: string; // lark token (document_id / node_token / file_token)
+  title: string;
+  url: string;
+  text: string;
+}
+
+/** A chunk persisted to the pgvector store. */
+export interface KnowledgeChunk {
+  id?: string;
+  sourceType: string;
+  sourceId: string;
+  sourceUrl: string;
+  title: string;
+  chunkIndex: number;
+  content: string;
+  contentHash: string;
+  embedding: number[];
+  metadata?: Record<string, any>;
+}
+
+export interface KnowledgeSearchResult {
+  content: string;
+  title: string;
+  sourceUrl: string;
+  score: number;
+}
+
+export interface IngestResult {
+  indexedChunks: number;
+  sources: { title: string; url: string; chunks: number }[];
+  skipped: number;
+}
+
+// ============================================================================
 // Error Types
 // ============================================================================
 

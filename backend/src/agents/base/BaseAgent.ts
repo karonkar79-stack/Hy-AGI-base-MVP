@@ -10,6 +10,7 @@
  */
 
 import Anthropic from '@anthropic-ai/sdk';
+import { isBedrockEnabled, createBedrockClient } from '../../llm/bedrock';
 import { v4 as uuidv4 } from 'uuid';
 import { logger } from '../../utils/logger';
 import { MemoryManager } from '../../memory/MemoryManager';
@@ -48,10 +49,14 @@ export abstract class BaseAgent {
   constructor(metadata: AgentMetadata) {
     this.metadata = metadata;
 
-    // Initialize Anthropic client
-    this.anthropic = new Anthropic({
-      apiKey: process.env.ANTHROPIC_API_KEY!
-    });
+    // Initialize the Claude client: AWS Bedrock (bearer-token API key) when
+    // configured, otherwise the Anthropic API directly. Both expose the same
+    // `.messages.create()` surface used by callClaude().
+    this.anthropic = (
+      isBedrockEnabled()
+        ? createBedrockClient()
+        : new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY! })
+    ) as any;
 
     // Initialize subsystems
     this.memoryManager = new MemoryManager(metadata.id);
