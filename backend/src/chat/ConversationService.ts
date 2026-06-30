@@ -13,7 +13,8 @@ import { IConversationStore, DocumentRow } from './store';
 import { SourceConnector } from '../connectors/types';
 import { detectReferences, findConnector, LARK_CONNECTORS } from '../connectors/registry';
 import { conversePrompt, extractPrompt, buildContext, parseScopeJson } from './prompts';
-import { isComplete, missingFields } from './scope';
+import { isComplete, missingFields, emptyScope } from './scope';
+import { formatScopeForOperator } from './scopeFormat';
 import { MessageClient, BedrockMessageResponse } from '../llm/bedrock';
 import { logger } from '../utils/logger';
 
@@ -212,8 +213,7 @@ export class ConversationService {
     const conv = await this.store.getByChatId(chatId);
     await this.send(
       this.operatorChatId,
-      `🔔 New pentest scope ready for review (conversation ${conversationId}).\n` +
-        `Scope: ${JSON.stringify(conv?.scope ?? {}, null, 2)}`
+      formatScopeForOperator(conversationId, conv?.scope ?? emptyScope())
     );
   }
 }

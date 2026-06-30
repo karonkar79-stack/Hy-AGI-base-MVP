@@ -13,6 +13,7 @@
     "lint": "eslint src/**/*.ts",
     "lint:fix": "eslint src/**/*.ts --fix",
     "migrate": "ts-node src/database/migrate.ts",
+    "push-scope": "ts-node src/chat/pushScope.ts",
     "format": "prettier --write \"src/**/*.ts\""
   },
   "keywords": ["ai", "security", "pentest", "multi-agent", "orchestration"],
