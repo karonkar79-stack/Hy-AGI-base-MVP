@@ -50,6 +50,11 @@ export function startLarkBot(service: ConversationService): void {
         logger.warn(
           `[lark] ignoring message event (open_id=${!!openId}, message_id=${!!messageId}, msg_type=${msg?.message_type}, empty_text=${!text})`
         );
+        // TEMP diagnostic: dump the raw content of a non-empty post that still
+        // parsed to empty text, so we can see its exact structure.
+        if (msg?.message_type === 'post' && msg?.content) {
+          logger.warn(`[lark][diag] empty post content: ${msg.content}`);
+        }
         return;
       }
       const turn: InboundTurn = { chatId: openId, userId, idempotencyKey: messageId, text };

@@ -18,11 +18,26 @@ interface PostNode {
   user_name?: string;
 }
 
+function isBlock(v: any): boolean {
+  return !!v && typeof v === 'object' && (Array.isArray(v.content) || typeof v.title === 'string');
+}
+
 function flattenPost(post: any): string {
-  // Prefer whichever language block is present (en_us or zh_cn or any first key).
-  const block =
-    post?.en_us ?? post?.zh_cn ?? (post && typeof post === 'object' ? Object.values(post)[0] : undefined);
-  if (!block || typeof block !== 'object') return '';
+  // Received posts come in two shapes: language-wrapped
+  // ({en_us|zh_cn:{title,content}}) or unwrapped ({title,content}) directly.
+  // Pick the block accordingly — never grab a bare string (e.g. a title) as the
+  // block, which would silently yield empty text.
+  let block: any;
+  if (isBlock(post)) {
+    block = post; // unwrapped: {title, content}
+  } else if (isBlock(post?.en_us)) {
+    block = post.en_us;
+  } else if (isBlock(post?.zh_cn)) {
+    block = post.zh_cn;
+  } else if (post && typeof post === 'object') {
+    block = Object.values(post).find(isBlock);
+  }
+  if (!isBlock(block)) return '';
 
   const parts: string[] = [];
   if (typeof block.title === 'string' && block.title.trim()) parts.push(block.title.trim());

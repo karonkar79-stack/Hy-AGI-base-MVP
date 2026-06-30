@@ -44,6 +44,19 @@ describe('extractText', () => {
     expect(extractText('post', JSON.stringify(post))).toContain('可以');
   });
 
+  it('handles an UNWRAPPED post ({title, content} with no language key)', () => {
+    const post = {
+      title: '',
+      content: [
+        [{ tag: 'text', text: '1 of July' }],
+        [{ tag: 'text', text: 'Grey-box' }],
+      ],
+    };
+    const out = extractText('post', JSON.stringify(post));
+    expect(out).toContain('1 of July');
+    expect(out).toContain('Grey-box');
+  });
+
   it('returns empty string for unparseable or unsupported content', () => {
     expect(extractText('text', undefined)).toBe('');
     expect(extractText('text', 'not json')).toBe('');
