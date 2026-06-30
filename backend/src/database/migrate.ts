@@ -45,6 +45,45 @@ CREATE INDEX IF NOT EXISTS knowledge_chunks_embedding_idx
 
 CREATE INDEX IF NOT EXISTS knowledge_chunks_source_idx
   ON knowledge_chunks (source_type, source_id);
+
+CREATE TABLE IF NOT EXISTS conversations (
+  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  chat_id     TEXT NOT NULL,
+  user_id     TEXT,
+  status      TEXT NOT NULL DEFAULT 'ACTIVE',
+  scope       JSONB NOT NULL DEFAULT '{}',
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS conversations_chat_idx ON conversations (chat_id);
+
+CREATE TABLE IF NOT EXISTS messages (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  conversation_id UUID NOT NULL REFERENCES conversations(id),
+  event_id        TEXT,
+  role            TEXT NOT NULL,
+  content         TEXT NOT NULL,
+  created_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
+  UNIQUE (event_id)
+);
+
+CREATE INDEX IF NOT EXISTS messages_conversation_idx ON messages (conversation_id, created_at);
+
+CREATE TABLE IF NOT EXISTS conversation_documents (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  conversation_id UUID NOT NULL REFERENCES conversations(id),
+  connector_type  TEXT NOT NULL,
+  source_ref      TEXT NOT NULL,
+  title           TEXT,
+  source_url      TEXT,
+  content         TEXT,
+  status          TEXT NOT NULL,
+  error           TEXT,
+  created_at      TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS conversation_documents_conv_idx ON conversation_documents (conversation_id);
 `;
 
 async function migrate(): Promise<void> {
