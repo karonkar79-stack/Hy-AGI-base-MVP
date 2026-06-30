@@ -57,10 +57,10 @@ let conversationStore: ConversationStore | null = null;
 
 function getConversationService(): ConversationService {
   if (!conversationService) {
-    conversationStore = new ConversationStore();
     if (!isBedrockEnabled()) {
       throw new Error('Bedrock must be configured (AWS_BEARER_TOKEN_BEDROCK) for the chatbot');
     }
+    conversationStore = new ConversationStore();
     conversationService = new ConversationService({
       store: conversationStore,
       llm: createBedrockClient(),

@@ -58,6 +58,13 @@ export function startLarkBot(service: ConversationService): void {
       service.handleTurn(turn).catch((e: Error) => logger.error(`[lark] handleTurn failed: ${e.message}`));
     },
 
+    // NOTE: confirm the bot-menu event name AND payload shape in the Lark/Feishu
+    // console. Two things to verify there:
+    //  1. the event name (candidate 'application.bot.menu_v6') and event_key field;
+    //  2. that the payload carries a chat_id. The `|| data?.open_id` fallback is a
+    //     USER id, not a chat id — sendText() sends with receive_id_type:'chat_id',
+    //     so if a menu click only provides open_id the reply will fail. If the real
+    //     payload is open_id-only, switch that path to receive_id_type:'open_id'.
     'application.bot.menu_v6': async (data: any) => {
       const eventKey: string = data?.event_key;
       const chatId: string | undefined = data?.chat_id || data?.open_id;
