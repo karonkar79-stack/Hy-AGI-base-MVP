@@ -122,8 +122,12 @@ export class ConversationService {
       return; // do NOT advance state
     }
 
-    await this.send(turn.chatId, reply);
     await this.store.appendMessage(conv.id, 'assistant', reply);
+    try {
+      await this.send(turn.chatId, reply);
+    } catch (err: any) {
+      logger.warn(`[chat] failed to send reply (recoverable next turn): ${err.message}`);
+    }
 
     // 5. EXTRACT — re-derive the whole scope. Failure is swallowed (self-heals).
     const historyWithReply = await this.store.getMessages(conv.id);
@@ -155,6 +159,7 @@ export class ConversationService {
 
     for (const { connectorType, ref } of detected) {
       if (known.has(ref)) continue;
+      known.add(ref);
       const connector = findConnector(connectorType, this.connectors);
       if (!connector) continue;
 

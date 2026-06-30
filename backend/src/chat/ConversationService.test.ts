@@ -203,4 +203,43 @@ describe('ConversationService.handleTurn', () => {
     expect(store._conv.status).toBe('READY_FOR_REVIEW');     // status still flips
     expect(send.mock.calls.every(([chat]) => chat === 'chat-1')).toBe(true); // only the user notified
   });
+
+  it('ingests a duplicate document reference only once per message', async () => {
+    const store = makeStore();
+    const send = jest.fn(async (_chatId: string, _text: string) => {});
+    const llm = makeLlm('Reading that.', {});
+    const svc = new ConversationService({ store, llm, connectors: [fakeDocConnector], send });
+
+    const url = 'https://acme.larksuite.com/docx/Abc';
+    await svc.handleTurn(turn(`see ${url} and again ${url}`));
+
+    const ingested = store._docs.filter((d) => d.sourceRef === url && d.status === 'ingested');
+    expect(ingested).toHaveLength(1);
+  });
+
+  it('serializes overlapping turns for the same chat', async () => {
+    const store = makeStore();
+    const send = jest.fn(async (_chatId: string, _text: string) => {});
+    const order: string[] = [];
+    // LLM records call order; converse returns a reply, extract returns empty scope.
+    const llm: MessageClient = {
+      messages: {
+        async create(params: any) {
+          const isExtract = params.system?.includes('extract a structured pentest scope');
+          order.push(isExtract ? 'extract' : 'converse');
+          return { content: [{ type: 'text', text: isExtract ? JSON.stringify(emptyScope()) : 'ok' }], usage: { input_tokens: 1, output_tokens: 1 } };
+        },
+      },
+    };
+    const svc = new ConversationService({ store, llm, connectors: [fakeDocConnector], send });
+
+    await Promise.all([
+      svc.handleTurn(turn('first', 'k-1')),
+      svc.handleTurn(turn('second', 'k-2')),
+    ]);
+
+    // Two full turns ran, each converse+extract, and turn 1 fully completed before turn 2 started.
+    expect(order).toEqual(['converse', 'extract', 'converse', 'extract']);
+    expect(store._msgs.filter((m) => m.role === 'user').map((m) => m.content)).toEqual(['first', 'second']);
+  });
 });
