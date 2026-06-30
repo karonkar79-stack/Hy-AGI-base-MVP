@@ -32,3 +32,21 @@ export async function sendText(receiveId: string, text: string): Promise<void> {
   });
   logger.debug(`[lark] sent message to ${receiveId} (${text.length} chars)`);
 }
+
+/**
+ * Send an interactive message card. `card` is the card JSON object (schema
+ * 2.0); Lark's interactive msg_type expects it JSON-stringified as content.
+ * receive_id_type is inferred from the prefix, same as sendText.
+ */
+export async function sendCard(receiveId: string, card: unknown): Promise<void> {
+  const client = getLarkClient();
+  await client.im.message.create({
+    params: { receive_id_type: receiveIdType(receiveId) },
+    data: {
+      receive_id: receiveId,
+      msg_type: 'interactive',
+      content: JSON.stringify(card),
+    },
+  });
+  logger.debug(`[lark] sent interactive card to ${receiveId}`);
+}

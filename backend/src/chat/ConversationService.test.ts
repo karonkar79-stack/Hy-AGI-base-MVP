@@ -138,6 +138,29 @@ describe('ConversationService.handleTurn', () => {
     expect(send.mock.calls.some(([chat]) => chat === 'op-chat')).toBe(true);
   });
 
+  it('when a sendCard transport is provided, the operator gets a card (not a text dump)', async () => {
+    const store = makeStore();
+    const full: PentestScope = {
+      targets: ['app.example.com'], inScope: 'web app', environment: 'staging',
+      rulesOfEngagement: 'no DoS', timingWindow: 'next week', testType: 'web',
+      contacts: 'ops@example.com',
+    };
+    store._conv.scope = full;
+    const send = jest.fn(async (_chatId: string, _text: string) => {});
+    const sendCard = jest.fn(async (_chatId: string, _card: unknown) => {});
+    const llm = makeLlm('Great, handing off.', full);
+    const svc = new ConversationService({ store, llm, connectors: [fakeDocConnector], send, sendCard, operatorChatId: 'op-chat' });
+
+    await svc.handleTurn(turn('Yes, please proceed'));
+
+    // Operator notified via the card transport, with a card object — not via text.
+    expect(sendCard).toHaveBeenCalledTimes(1);
+    expect(sendCard.mock.calls[0][0]).toBe('op-chat');
+    expect(sendCard.mock.calls[0][1]).toHaveProperty('header');
+    // The user still gets a plain-text acknowledgement; no operator text send.
+    expect(send.mock.calls.some(([chat]) => chat === 'op-chat')).toBe(false);
+  });
+
   it('an affirmative while scope is incomplete does NOT hand off', async () => {
     const store = makeStore();
     const send = jest.fn(async (_chatId: string, _text: string) => {});

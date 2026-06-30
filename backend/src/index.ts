@@ -15,7 +15,7 @@ import { IngestRequest } from './types';
 import { logger } from './utils/logger';
 import { ConversationStore } from './chat/store';
 import { ConversationService } from './chat/ConversationService';
-import { sendText } from './integrations/lark/messaging';
+import { sendText, sendCard } from './integrations/lark/messaging';
 import { startLarkBot } from './integrations/lark/events';
 import { createBedrockClient, isBedrockEnabled } from './llm/bedrock';
 
@@ -65,6 +65,7 @@ function getConversationService(): ConversationService {
       store: conversationStore,
       llm: createBedrockClient(),
       send: sendText,
+      sendCard,
       operatorChatId: process.env.OPERATOR_CHAT_ID,
     });
   }

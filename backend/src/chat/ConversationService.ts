@@ -14,7 +14,7 @@ import { SourceConnector } from '../connectors/types';
 import { detectReferences, findConnector, LARK_CONNECTORS } from '../connectors/registry';
 import { conversePrompt, extractPrompt, buildContext, parseScopeJson } from './prompts';
 import { isComplete, missingFields, emptyScope } from './scope';
-import { formatScopeForOperator } from './scopeFormat';
+import { formatScopeForOperator, buildScopeCard } from './scopeFormat';
 import { MessageClient, BedrockMessageResponse } from '../llm/bedrock';
 import { logger } from '../utils/logger';
 
@@ -30,6 +30,12 @@ export interface ConversationDeps {
   llm: MessageClient;
   connectors?: SourceConnector[];
   send: (chatId: string, text: string) => Promise<void>;
+  /**
+   * Optional richer transport for the operator handoff. When provided, the
+   * scope is delivered to the operator group as an interactive card; when
+   * absent, handoff falls back to the plain-text `send`.
+   */
+  sendCard?: (chatId: string, card: unknown) => Promise<void>;
   operatorChatId?: string;
 }
 
@@ -48,6 +54,7 @@ export class ConversationService {
   private readonly llm: MessageClient;
   private readonly connectors: SourceConnector[];
   private readonly send: (chatId: string, text: string) => Promise<void>;
+  private readonly sendCard?: (chatId: string, card: unknown) => Promise<void>;
   private readonly operatorChatId?: string;
   private readonly locks = new Map<string, Promise<unknown>>();
 
@@ -56,6 +63,7 @@ export class ConversationService {
     this.llm = deps.llm;
     this.connectors = deps.connectors ?? LARK_CONNECTORS;
     this.send = deps.send;
+    this.sendCard = deps.sendCard;
     this.operatorChatId = deps.operatorChatId;
   }
 
@@ -211,9 +219,13 @@ export class ConversationService {
       return;
     }
     const conv = await this.store.getByChatId(chatId);
-    await this.send(
-      this.operatorChatId,
-      formatScopeForOperator(conversationId, conv?.scope ?? emptyScope())
-    );
+    const scope = conv?.scope ?? emptyScope();
+    // Prefer the interactive card; fall back to plain text when no card
+    // transport is wired (e.g. in unit tests).
+    if (this.sendCard) {
+      await this.sendCard(this.operatorChatId, buildScopeCard(conversationId, scope));
+    } else {
+      await this.send(this.operatorChatId, formatScopeForOperator(conversationId, scope));
+    }
   }
 }

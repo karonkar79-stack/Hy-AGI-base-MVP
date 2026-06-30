@@ -16,8 +16,8 @@ import { config } from 'dotenv';
 import path from 'path';
 import { Pool } from 'pg';
 import { PentestScope, emptyScope } from './scope';
-import { formatScopeForOperator } from './scopeFormat';
-import { sendText } from '../integrations/lark/messaging';
+import { buildScopeCard } from './scopeFormat';
+import { sendCard } from '../integrations/lark/messaging';
 import { logger } from '../utils/logger';
 
 // Match index.ts env loading: backend/.env then repo-root .env (first wins).
@@ -75,9 +75,9 @@ async function main(): Promise<void> {
     if (!target) {
       throw new Error('No matching conversation found to push.');
     }
-    const text = formatScopeForOperator(target.id, target.scope);
+    const card = buildScopeCard(target.id, target.scope);
     logger.info(`[push-scope] sending conversation ${target.id} to ${operatorChatId}`);
-    await sendText(operatorChatId, text);
+    await sendCard(operatorChatId, card);
     logger.info('[push-scope] sent.');
   } finally {
     await pool.end();
