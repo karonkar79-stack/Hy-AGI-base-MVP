@@ -140,15 +140,25 @@ export class ConversationStore implements IConversationStore {
     content: string,
     idempotencyKey?: string
   ): Promise<MessageRow> {
-    const res = await this.pool.query(
-      `INSERT INTO messages (conversation_id, event_id, role, content)
-       VALUES ($1, $2, $3, $4) RETURNING *`,
-      [conversationId, idempotencyKey ?? null, role, content]
-    );
-    await this.pool.query(`UPDATE conversations SET updated_at = now() WHERE id = $1`, [
-      conversationId,
-    ]);
-    return mapMessage(res.rows[0]);
+    const client = await this.pool.connect();
+    try {
+      await client.query('BEGIN');
+      const res = await client.query(
+        `INSERT INTO messages (conversation_id, event_id, role, content)
+         VALUES ($1, $2, $3, $4) RETURNING *`,
+        [conversationId, idempotencyKey ?? null, role, content]
+      );
+      await client.query(`UPDATE conversations SET updated_at = now() WHERE id = $1`, [
+        conversationId,
+      ]);
+      await client.query('COMMIT');
+      return mapMessage(res.rows[0]);
+    } catch (err) {
+      await client.query('ROLLBACK');
+      throw err;
+    } finally {
+      client.release();
+    }
   }
 
   async getMessages(conversationId: string): Promise<MessageRow[]> {
