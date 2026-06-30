@@ -27,12 +27,14 @@ config({ path: path.resolve(process.cwd(), '../.env') });
 interface Target {
   id: string;
   scope: PentestScope;
+  /** Conversation chat key = requester's open_id, used for the @mention. */
+  chatId: string;
 }
 
 async function resolveTarget(pool: Pool, argv: string[]): Promise<Target | null> {
   const idFlag = argv.indexOf('--id');
   if (idFlag !== -1 && argv[idFlag + 1]) {
-    const res = await pool.query(`SELECT id, scope FROM conversations WHERE id = $1`, [
+    const res = await pool.query(`SELECT id, scope, chat_id FROM conversations WHERE id = $1`, [
       argv[idFlag + 1],
     ]);
     return res.rows[0] ? mapRow(res.rows[0]) : null;
@@ -41,7 +43,7 @@ async function resolveTarget(pool: Pool, argv: string[]): Promise<Target | null>
   const chatId = argv.find((a) => !a.startsWith('--'));
   if (chatId) {
     const res = await pool.query(
-      `SELECT id, scope FROM conversations WHERE chat_id = $1 ORDER BY updated_at DESC LIMIT 1`,
+      `SELECT id, scope, chat_id FROM conversations WHERE chat_id = $1 ORDER BY updated_at DESC LIMIT 1`,
       [chatId]
     );
     return res.rows[0] ? mapRow(res.rows[0]) : null;
@@ -49,7 +51,7 @@ async function resolveTarget(pool: Pool, argv: string[]): Promise<Target | null>
 
   // Default: the single most-recent scope ready for review.
   const res = await pool.query(
-    `SELECT id, scope FROM conversations WHERE status = 'READY_FOR_REVIEW'
+    `SELECT id, scope, chat_id FROM conversations WHERE status = 'READY_FOR_REVIEW'
      ORDER BY updated_at DESC LIMIT 1`
   );
   return res.rows[0] ? mapRow(res.rows[0]) : null;
@@ -57,7 +59,7 @@ async function resolveTarget(pool: Pool, argv: string[]): Promise<Target | null>
 
 function mapRow(r: any): Target {
   const scope = r.scope && Object.keys(r.scope).length ? (r.scope as PentestScope) : emptyScope();
-  return { id: r.id, scope };
+  return { id: r.id, scope, chatId: r.chat_id };
 }
 
 async function main(): Promise<void> {
@@ -75,7 +77,7 @@ async function main(): Promise<void> {
     if (!target) {
       throw new Error('No matching conversation found to push.');
     }
-    const card = buildScopeCard(target.id, target.scope);
+    const card = buildScopeCard(target.id, target.scope, target.chatId);
     logger.info(`[push-scope] sending conversation ${target.id} to ${operatorChatId}`);
     await sendCard(operatorChatId, card);
     logger.info('[push-scope] sent.');

@@ -220,10 +220,16 @@ export class ConversationService {
     }
     const conv = await this.store.getByChatId(chatId);
     const scope = conv?.scope ?? emptyScope();
+    // The conversation is keyed on the requester's open_id, so chatId is the
+    // user to @mention in the card.
+    const requesterOpenId = chatId;
     // Prefer the interactive card; fall back to plain text when no card
     // transport is wired (e.g. in unit tests).
     if (this.sendCard) {
-      await this.sendCard(this.operatorChatId, buildScopeCard(conversationId, scope));
+      await this.sendCard(
+        this.operatorChatId,
+        buildScopeCard(conversationId, scope, requesterOpenId)
+      );
     } else {
       await this.send(this.operatorChatId, formatScopeForOperator(conversationId, scope));
     }

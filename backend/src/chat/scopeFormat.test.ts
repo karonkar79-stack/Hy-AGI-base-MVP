@@ -1,4 +1,4 @@
-import { formatScopeForOperator, buildScopeCard } from './scopeFormat';
+import { formatScopeForOperator, buildScopeCard, mentionMd } from './scopeFormat';
 import { PentestScope, emptyScope } from './scope';
 
 describe('formatScopeForOperator', () => {
@@ -90,5 +90,30 @@ describe('buildScopeCard', () => {
     const scope: PentestScope = { ...full, contacts: 'a*b_c`d[e]' };
     const text = cardText(buildScopeCard('c', scope));
     expect(text).toContain('a\\*b\\_c\\`d\\[e\\]');
+  });
+
+  it('@mentions the requester when an open_id is supplied', () => {
+    const text = cardText(buildScopeCard('c', full, 'ou_f55edae5da5a27a90a31c50f0e9d144e'));
+    expect(text).toContain('Requested by');
+    expect(text).toContain('<at id=ou_f55edae5da5a27a90a31c50f0e9d144e></at>');
+  });
+
+  it('omits the requester line when no/invalid open_id is supplied', () => {
+    const noId = cardText(buildScopeCard('c', full));
+    expect(noId).not.toContain('Requested by');
+    const groupId = cardText(buildScopeCard('c', full, 'oc_group123')); // not an open_id
+    expect(groupId).not.toContain('Requested by');
+    expect(groupId).not.toContain('<at');
+  });
+});
+
+describe('mentionMd', () => {
+  it('builds an <at> tag for an open_id', () => {
+    expect(mentionMd('ou_abc')).toBe('<at id=ou_abc></at>');
+  });
+  it('returns empty for missing or non-open_id values', () => {
+    expect(mentionMd(undefined)).toBe('');
+    expect(mentionMd('oc_group')).toBe(''); // chat_id, not a user
+    expect(mentionMd('on_union')).toBe(''); // union_id, not addressable here
   });
 });

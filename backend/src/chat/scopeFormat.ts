@@ -74,6 +74,21 @@ function mdEscape(s: string): string {
   return s.replace(/[\\*_~`\[\]()]/g, (c) => `\\${c}`);
 }
 
+/**
+ * Render a clickable @mention of the requester for lark_md, IF we have their
+ * open_id. Lark resolves `<at id=ou_xxx></at>` to the user's name and pings
+ * them when they're a member of the receiving group. Returns '' when the id is
+ * absent or not an open_id, so callers can omit the line entirely rather than
+ * emit a broken tag. The id is a controlled value (never user text), so it is
+ * intentionally not run through mdEscape.
+ */
+export function mentionMd(requesterOpenId?: string): string {
+  if (requesterOpenId && requesterOpenId.startsWith('ou_')) {
+    return `<at id=${requesterOpenId}></at>`;
+  }
+  return '';
+}
+
 /** A two-cell row: each cell is an emoji label above its value. */
 function twoColumn(
   leftLabel: string,
@@ -104,8 +119,17 @@ function section(label: string, value: string): unknown {
 /**
  * Build the operator-review interactive card for a scope.
  * Header turns green when complete, amber (carmine) when fields are missing.
+ *
+ * `requesterOpenId` is the Lark open_id of the user who requested the pentest
+ * (the conversation's chat key). When present and a valid open_id, the card
+ * opens with a clickable @mention so the operator group can ping them; the
+ * mention only notifies them if they are a member of that group.
  */
-export function buildScopeCard(conversationId: string, scope: PentestScope): LarkCard {
+export function buildScopeCard(
+  conversationId: string,
+  scope: PentestScope,
+  requesterOpenId?: string
+): LarkCard {
   const complete = isComplete(scope);
   const missing = missingFields(scope);
 
@@ -113,8 +137,14 @@ export function buildScopeCard(conversationId: string, scope: PentestScope): Lar
     ? '✅ **Status:** complete'
     : `⚠️ **Status:** missing ${missing.join(', ')}`;
 
+  const mention = mentionMd(requesterOpenId);
+  const requestedByLine = mention ? `🙋 **Requested by:** ${mention}\n` : '';
+
   const elements: unknown[] = [
-    { tag: 'div', text: { tag: 'lark_md', content: `${statusLine}\n\`${conversationId}\`` } },
+    {
+      tag: 'div',
+      text: { tag: 'lark_md', content: `${requestedByLine}${statusLine}\n\`${conversationId}\`` },
+    },
     { tag: 'hr' },
     twoColumn('🎯 Targets', val(scope.targets), '🧪 Environment', val(scope.environment)),
     twoColumn('🔍 Test type', val(scope.testType), '🗓️ Timing window', val(scope.timingWindow)),
