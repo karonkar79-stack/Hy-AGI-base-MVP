@@ -7,11 +7,18 @@ import express, { Request, Response } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import { config } from 'dotenv';
+import path from 'path';
 import { SrPentesterAgent } from './agents/sr-pentester';
+import { KnowledgeStore } from './knowledge/KnowledgeStore';
+import { IngestionService } from './knowledge/IngestionService';
+import { IngestRequest } from './types';
 import { logger } from './utils/logger';
 
-// Load environment variables
+// Load environment variables — backend/.env if present, then the repo-root
+// .env (where docker-compose and .env.example also live). dotenv does not
+// override vars that are already set, so the first definition wins.
 config();
+config({ path: path.resolve(process.cwd(), '../.env') });
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -26,6 +33,19 @@ app.use(express.urlencoded({ extended: true }));
 
 // Initialize agents
 const agents: Map<string, any> = new Map();
+
+// Knowledge base (Lark ingestion) — lazily initialized on first use so the
+// server still boots without DB / Lark / OpenAI configuration.
+let knowledgeStore: KnowledgeStore | null = null;
+let ingestionService: IngestionService | null = null;
+
+function getIngestionService(): IngestionService {
+  if (!ingestionService) {
+    knowledgeStore = new KnowledgeStore();
+    ingestionService = new IngestionService(knowledgeStore);
+  }
+  return ingestionService;
+}
 
 async function initializeAgents() {
   try {
@@ -133,6 +153,36 @@ app.post('/api/tasks', async (req: Request, res: Response) => {
   }
 });
 
+// Ingest Lark content into the knowledge base
+app.post('/api/knowledge/ingest', async (req: Request, res: Response) => {
+  const { type, token } = req.body || {};
+
+  if (!type || !token || !['wiki_space', 'doc', 'drive_folder'].includes(type)) {
+    return res.status(400).json({
+      success: false,
+      error: {
+        code: 'INVALID_INPUT',
+        message: "Body requires { type: 'wiki_space' | 'doc' | 'drive_folder', token: string }"
+      }
+    });
+  }
+
+  try {
+    const result = await getIngestionService().ingest({ type, token } as IngestRequest);
+    return res.json({
+      success: true,
+      data: result,
+      meta: { timestamp: Date.now(), requestId: `ingest-${Date.now()}` }
+    });
+  } catch (error: any) {
+    logger.error('Knowledge ingest failed:', error);
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INGEST_FAILED', message: error.message }
+    });
+  }
+});
+
 // Get system metrics
 app.get('/api/metrics', (_req: Request, res: Response) => {
   const metrics = {
@@ -224,12 +274,14 @@ if (process.env.NODE_ENV === 'production') {
 
 // Error handling middleware
 app.use((err: any, _req: Request, res: Response, _next: any) => {
-  logger.error('Unhandled error:', err);
-  res.status(500).json({
+  logger.error('Unhandled error:', err?.stack || err);
+  const isProd = process.env.NODE_ENV === 'production';
+  res.status(err?.status || err?.statusCode || 500).json({
     success: false,
     error: {
-      code: 'INTERNAL_ERROR',
-      message: 'An unexpected error occurred'
+      code: err?.code || err?.type || 'INTERNAL_ERROR',
+      message: isProd ? 'An unexpected error occurred' : (err?.message || 'An unexpected error occurred'),
+      ...(isProd ? {} : { type: err?.type })
     }
   });
 });
@@ -276,6 +328,9 @@ process.on('SIGTERM', async () => {
   logger.info('SIGTERM received, shutting down gracefully');
   for (const agent of agents.values()) {
     await agent.shutdown();
+  }
+  if (knowledgeStore) {
+    await knowledgeStore.close();
   }
   process.exit(0);
 });
