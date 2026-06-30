@@ -24,7 +24,7 @@ export function detectReferences(
   text: string,
   connectors: SourceConnector[] = LARK_CONNECTORS
 ): DetectedRef[] {
-  const urls = text.match(URL_RE) ?? [];
+  const urls = (text.match(URL_RE) ?? []).map((u) => u.replace(/[.,;:!?]+$/, ''));
   const out: DetectedRef[] = [];
   for (const url of urls) {
     const connector = connectors.find((c) => c.matches(url));

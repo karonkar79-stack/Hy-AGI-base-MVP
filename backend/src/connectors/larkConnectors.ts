@@ -11,7 +11,7 @@ import { readDoc, readWikiSpace, readDriveFolder } from '../integrations/lark/re
 
 // Lark/Feishu URLs look like https://<tenant>.(larksuite.com|feishu.cn)/<kind>/<token>.
 // Drive folders are /drive/folder/<token>; docx is /docx/<token>; wiki is /wiki/<token>.
-const TOKEN = '([A-Za-z0-9]+)';
+const TOKEN = '([A-Za-z0-9_-]+)';
 const HOST = '[^/\\s]*\\.(?:larksuite\\.com|feishu\\.cn)';
 
 function makeRegex(pathKind: string): RegExp {
