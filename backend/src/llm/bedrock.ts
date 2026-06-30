@@ -58,6 +58,16 @@ export function createBedrockClient(): MessageClient {
     modelId
   )}/invoke`;
 
+  // The first outbound call to Bedrock occasionally fails at the network layer
+  // (`fetch` throws with no HTTP status — a cold-connection/TLS blip) and then
+  // succeeds once the connection is warm. Callers here (the chatbot) invoke
+  // create() directly without BaseAgent's retry, so retry transient *network*
+  // failures in the client. HTTP error responses carry a status and are NOT
+  // retried — they are surfaced for the caller to handle (e.g. a 400/403).
+  const NETWORK_RETRIES = Number(process.env.BEDROCK_NETWORK_RETRIES ?? 2);
+
+  const sleep = (ms: number): Promise<void> => new Promise((r) => setTimeout(r, ms));
+
   return {
     messages: {
       async create(params: BedrockMessageParams): Promise<BedrockMessageResponse> {
@@ -70,15 +80,30 @@ export function createBedrockClient(): MessageClient {
         if (typeof params.temperature === 'number') body.temperature = params.temperature;
         if (betas) body.anthropic_beta = betas;
 
-        const res = await fetch(endpoint, {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-            Accept: 'application/json',
-          },
-          body: JSON.stringify(body),
-        });
+        let res: Response;
+        for (let attempt = 0; ; attempt++) {
+          try {
+            res = await fetch(endpoint, {
+              method: 'POST',
+              headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json',
+                Accept: 'application/json',
+              },
+              body: JSON.stringify(body),
+            });
+            break;
+          } catch (err: any) {
+            // Network-level failure (no HTTP response). Retry with brief backoff.
+            if (attempt >= NETWORK_RETRIES) {
+              logger.error(`Bedrock fetch failed for ${modelId} after ${attempt + 1} attempt(s): ${err.message}`);
+              throw err;
+            }
+            const backoffMs = 250 * Math.pow(2, attempt);
+            logger.warn(`Bedrock fetch failed (${err.message}); retry ${attempt + 1}/${NETWORK_RETRIES} in ${backoffMs}ms`);
+            await sleep(backoffMs);
+          }
+        }
 
         if (!res.ok) {
           const detail = await res.text().catch(() => '');
