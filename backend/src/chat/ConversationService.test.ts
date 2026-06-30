@@ -163,4 +163,44 @@ describe('ConversationService.handleTurn', () => {
     expect(send.mock.calls.some(([, msg]) => /problem|try again|continue/i.test(msg))).toBe(true);
     expect(store._conv.scope.environment).toBe('unknown'); // unchanged
   });
+
+  it('swallows an extract-call failure: reply still sent, scope unchanged, no throw', async () => {
+    const store = makeStore();
+    const send = jest.fn(async (_chatId: string, _text: string) => {});
+    const llm: MessageClient & { calls: any[] } = {
+      calls: [],
+      messages: {
+        async create(params: any) {
+          (llm.calls as any[]).push(params);
+          if (params.system?.includes('extract a structured pentest scope')) {
+            throw new Error('extract boom');
+          }
+          return { content: [{ type: 'text', text: 'Following up on scope.' }], usage: { input_tokens: 1, output_tokens: 1 } };
+        },
+      },
+    };
+    const svc = new ConversationService({ store, llm, connectors: [fakeDocConnector], send });
+
+    await expect(svc.handleTurn(turn('hello'))).resolves.toBeUndefined(); // does not throw
+    expect(send).toHaveBeenCalledWith('chat-1', 'Following up on scope.'); // reply sent
+    expect(store._msgs.map((m) => m.role)).toEqual(['user', 'assistant']); // both persisted
+    expect(store._conv.scope.environment).toBe('unknown'); // scope NOT advanced
+  });
+
+  it('hands off with operatorChatId unset: flips status, notifies only the user, no throw', async () => {
+    const store = makeStore();
+    const full: PentestScope = {
+      targets: ['app.example.com'], inScope: 'web app', environment: 'staging',
+      rulesOfEngagement: 'no DoS', timingWindow: 'next week', testType: 'web',
+      contacts: 'ops@example.com',
+    };
+    store._conv.scope = full;
+    const send = jest.fn(async (_chatId: string, _text: string) => {});
+    const llm = makeLlm('Great, handing off.', full);
+    const svc = new ConversationService({ store, llm, connectors: [fakeDocConnector], send }); // no operatorChatId
+
+    await expect(svc.handleTurn(turn('Yes, please proceed'))).resolves.toBeUndefined();
+    expect(store._conv.status).toBe('READY_FOR_REVIEW');     // status still flips
+    expect(send.mock.calls.every(([chat]) => chat === 'chat-1')).toBe(true); // only the user notified
+  });
 });
