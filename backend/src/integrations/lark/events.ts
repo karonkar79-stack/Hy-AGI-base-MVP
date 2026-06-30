@@ -50,10 +50,10 @@ export function startLarkBot(service: ConversationService): void {
         logger.warn(
           `[lark] ignoring message event (open_id=${!!openId}, message_id=${!!messageId}, msg_type=${msg?.message_type}, empty_text=${!text})`
         );
-        // TEMP diagnostic: dump the raw content of a non-empty post that still
-        // parsed to empty text, so we can see its exact structure.
+        // If a post parsed to empty text, log its raw content at debug level so an
+        // unhandled rich-text shape can be diagnosed without re-instrumenting.
         if (msg?.message_type === 'post' && msg?.content) {
-          logger.warn(`[lark][diag] empty post content: ${msg.content}`);
+          logger.debug(`[lark] empty post content: ${msg.content}`);
         }
         return;
       }
