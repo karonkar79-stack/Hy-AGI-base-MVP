@@ -9,9 +9,12 @@
  * dispatcher stays responsive; per-chat serialization + message_id dedupe in
  * the service make redelivery safe.
  *
- * NOTE: confirm the exact bot-menu event name and the menu item's event_key in
- * the Lark/Feishu console (candidate event: 'application.bot.menu_v6'). Adjust
- * MENU_EVENT / START_PENTEST_KEY below to match what the console shows.
+ * Conversation key: both entry points are keyed on the USER's open_id, not a
+ * chat_id. The bot-menu event carries only operator.operator_id.open_id (no
+ * chat_id at all), so open_id is the one identifier common to a menu click and
+ * the user's subsequent messages — keying on it keeps them in one conversation.
+ * sendText() infers receive_id_type from the id prefix, so replying to an
+ * open_id works directly.
  */
 
 import * as lark from '@larksuiteoapi/node-sdk';
@@ -44,38 +47,36 @@ export function startLarkBot(service: ConversationService): void {
   const dispatcher = new lark.EventDispatcher({}).register({
     'im.message.receive_v1': async (data: any) => {
       const msg = data?.message;
-      const chatId: string = msg?.chat_id;
+      // Key the conversation on the sender's open_id (the same identifier the
+      // menu event provides), so a menu click and later messages share one
+      // conversation. message_id is the dedupe/idempotency key.
+      const openId: string | undefined = data?.sender?.sender_id?.open_id;
       const messageId: string = msg?.message_id;
-      const userId: string | undefined =
-        data?.sender?.sender_id?.user_id || data?.sender?.sender_id?.open_id;
+      const userId: string | undefined = data?.sender?.sender_id?.user_id || openId;
       const text = parseTextContent(msg?.content);
 
-      if (!chatId || !messageId || !text) {
-        logger.debug('[lark] ignoring non-text or malformed message event');
+      if (!openId || !messageId || !text) {
+        logger.warn('[lark] ignoring message event (missing open_id/message_id, or non-text content)');
         return;
       }
-      const turn: InboundTurn = { chatId, userId, idempotencyKey: messageId, text };
+      const turn: InboundTurn = { chatId: openId, userId, idempotencyKey: messageId, text };
       service.handleTurn(turn).catch((e: Error) => logger.error(`[lark] handleTurn failed: ${e.message}`));
     },
 
-    // NOTE: confirm the bot-menu event name AND payload shape in the Lark/Feishu
-    // console. Two things to verify there:
-    //  1. the event name (candidate 'application.bot.menu_v6') and event_key field;
-    //  2. that the payload carries a chat_id. The `|| data?.open_id` fallback is a
-    //     USER id, not a chat id — sendText() sends with receive_id_type:'chat_id',
-    //     so if a menu click only provides open_id the reply will fail. If the real
-    //     payload is open_id-only, switch that path to receive_id_type:'open_id'.
+    // NOTE: the bot-menu event name was confirmed as 'application.bot.menu_v6'
+    // against a live larksuite.com tenant. Its payload carries NO chat_id — only
+    // operator.operator_id.open_id — so we key the conversation on that open_id
+    // and reply to it directly (sendText infers receive_id_type from the prefix).
     'application.bot.menu_v6': async (data: any) => {
       const eventKey: string = data?.event_key;
-      const chatId: string | undefined = data?.chat_id || data?.open_id;
-      const userId: string | undefined =
-        data?.operator?.operator_id?.user_id || data?.operator?.operator_id?.open_id;
-      if (eventKey !== START_PENTEST_KEY || !chatId) {
-        logger.debug(`[lark] ignoring menu event (key=${eventKey})`);
+      const openId: string | undefined = data?.operator?.operator_id?.open_id;
+      const userId: string | undefined = data?.operator?.operator_id?.user_id || openId;
+      if (eventKey !== START_PENTEST_KEY || !openId) {
+        logger.warn(`[lark] ignoring menu event (key=${eventKey}, open_id present=${!!openId})`);
         return;
       }
       service
-        .startConversation(chatId, userId)
+        .startConversation(openId, userId)
         .catch((e: Error) => logger.error(`[lark] startConversation failed: ${e.message}`));
     },
   });
