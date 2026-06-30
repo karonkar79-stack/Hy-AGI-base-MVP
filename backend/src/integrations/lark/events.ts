@@ -19,19 +19,10 @@
 
 import * as lark from '@larksuiteoapi/node-sdk';
 import { ConversationService, InboundTurn } from '../../chat/ConversationService';
+import { extractText } from './messageContent';
 import { logger } from '../../utils/logger';
 
 const START_PENTEST_KEY = process.env.LARK_MENU_KEY || 'start_pentest';
-
-function parseTextContent(raw: string | undefined): string {
-  if (!raw) return '';
-  try {
-    const obj = JSON.parse(raw);
-    return typeof obj.text === 'string' ? obj.text : '';
-  } catch {
-    return '';
-  }
-}
 
 export function startLarkBot(service: ConversationService): void {
   const appId = process.env.LARK_APP_ID;
@@ -53,10 +44,12 @@ export function startLarkBot(service: ConversationService): void {
       const openId: string | undefined = data?.sender?.sender_id?.open_id;
       const messageId: string = msg?.message_id;
       const userId: string | undefined = data?.sender?.sender_id?.user_id || openId;
-      const text = parseTextContent(msg?.content);
+      const text = extractText(msg?.message_type, msg?.content);
 
       if (!openId || !messageId || !text) {
-        logger.warn('[lark] ignoring message event (missing open_id/message_id, or non-text content)');
+        logger.warn(
+          `[lark] ignoring message event (open_id=${!!openId}, message_id=${!!messageId}, msg_type=${msg?.message_type}, empty_text=${!text})`
+        );
         return;
       }
       const turn: InboundTurn = { chatId: openId, userId, idempotencyKey: messageId, text };
